@@ -1,0 +1,951 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="functional programming,python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="基本特征
+函数是first-class citizen，即一等公民，他可以像变量一样使用
+函数可以是参数
+函数可以是返回值
+
+支持函数式的语言
+Java 1.7以前并不支持函数式，只能通过对象模仿函数式，1.8 开始引入匿名函数lambda，实现了部分支持函数式
+C/C++不直接支持函数式，只能使用函数指针，但函数指针非常复杂
+C# 也不直接支持，但是有一个delegate和函数指针比较类似
+Py">
+<meta property="og:type" content="article">
+<meta property="og:title" content="函数式编程 functional programming">
+<meta property="og:url" content="http://blog.hacksmeta.com/2017/02/09/python-functional-programming/index.html">
+<meta property="og:site_name" content="MetaHacks">
+<meta property="og:description" content="基本特征
+函数是first-class citizen，即一等公民，他可以像变量一样使用
+函数可以是参数
+函数可以是返回值
+
+支持函数式的语言
+Java 1.7以前并不支持函数式，只能通过对象模仿函数式，1.8 开始引入匿名函数lambda，实现了部分支持函数式
+C/C++不直接支持函数式，只能使用函数指针，但函数指针非常复杂
+C# 也不直接支持，但是有一个delegate和函数指针比较类似
+Py">
+<meta property="og:updated_time" content="2017-02-09T10:13:41.060Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="函数式编程 functional programming">
+<meta name="twitter:description" content="基本特征
+函数是first-class citizen，即一等公民，他可以像变量一样使用
+函数可以是参数
+函数可以是返回值
+
+支持函数式的语言
+Java 1.7以前并不支持函数式，只能通过对象模仿函数式，1.8 开始引入匿名函数lambda，实现了部分支持函数式
+C/C++不直接支持函数式，只能使用函数指针，但函数指针非常复杂
+C# 也不直接支持，但是有一个delegate和函数指针比较类似
+Py">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.hacksmeta.com/2017/02/09/python-functional-programming/"/>
+
+
+
+
+
+  <title> 函数式编程 functional programming | MetaHacks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">MetaHacks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">一生二，二生三，三生万物</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.hacksmeta.com/2017/02/09/python-functional-programming/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Kinny">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="MetaHacks">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="MetaHacks" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                函数式编程 functional programming
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-09T18:13:41+08:00">
+                2017-02-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index">
+                    <span itemprop="name">Python</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/FunctionalProgramming/" itemprop="url" rel="index">
+                    <span itemprop="name">FunctionalProgramming</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/09/python-functional-programming/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/09/python-functional-programming/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基本特征"><a href="#基本特征" class="headerlink" title="基本特征"></a>基本特征</h2><ol>
+<li>函数是first-class citizen，即一等公民，他可以像变量一样使用</li>
+<li>函数可以是参数</li>
+<li>函数可以是返回值</li>
+</ol>
+<h2 id="支持函数式的语言"><a href="#支持函数式的语言" class="headerlink" title="支持函数式的语言"></a>支持函数式的语言</h2><ul>
+<li>Java 1.7以前并不支持函数式，只能通过对象模仿函数式，1.8 开始引入匿名函数lambda，实现了部分支持函数式</li>
+<li>C/C++不直接支持函数式，只能使用函数指针，但函数指针非常复杂</li>
+<li>C# 也不直接支持，但是有一个delegate和函数指针比较类似</li>
+<li>Python、Ruby、JavaScript是支持函数式的混合式语言</li>
+<li>Golang 支持函数式编程</li>
+<li>LISP 正统的纯正函数式语言</li>
+</ul>
+<h2 id="Python-中的基本属性"><a href="#Python-中的基本属性" class="headerlink" title="Python 中的基本属性"></a>Python 中的基本属性</h2><p>1.赋值<br>函数是第一等公民(first-class citizen),是一个对象，可以像其他变量一样赋值，修改状态等</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> <span class="string">"hello, ustc"</span></div><div class="line">func = hello</div><div class="line">func()</div><div class="line">func.__name__</div></pre></td></tr></table></figure>
+<p>2.嵌套定义<br>函数内部可以嵌套定义一个函数，这在C 和 Java 中是不允许的；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">nested_function</span><span class="params">()</span>:</span></div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">first_func</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">print</span> <span class="string">"first_func"</span></div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">second_func</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">print</span> <span class="string">"second_func"</span></div><div class="line">    </div><div class="line">    first_func()</div><div class="line">    second_func()</div><div class="line"></div><div class="line">nested_function()</div></pre></td></tr></table></figure>
+<p>3.参数和返回<br>函数可以当参数传递给另一个函数，或者当做一个函数的返回值，我们称这样的函数为 High-order function；另外，经常见到的lambda表达式，这来源于<a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="external">Lambda calculus</a>;我们不需要过多的理解他的数学理论，大部分情况下，lambda用来表示一个匿名纯函数(那些简单的，只用计算，而不需要IO的操作)；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_map</span><span class="params">(operation, sequence)</span>:</span></div><div class="line">    result = []</div><div class="line">    <span class="keyword">for</span> s <span class="keyword">in</span> sequence:</div><div class="line">        <span class="keyword">if</span> isinstance(s, list):</div><div class="line">            result.append(my_map(operation, s))</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            result.append(operation(s))</div><div class="line">    <span class="keyword">return</span> result</div><div class="line"></div><div class="line">l = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</div><div class="line">n_l = [<span class="number">1</span>,<span class="number">2</span>,[<span class="number">3</span>,<span class="number">4</span>,[<span class="number">5</span>,<span class="number">6</span>]]]</div><div class="line"><span class="keyword">print</span> my_map(<span class="keyword">lambda</span> x: x*x, l)</div><div class="line"><span class="keyword">print</span> my_map(<span class="keyword">lambda</span> x: x*x, n_l)</div><div class="line"></div><div class="line"><span class="keyword">print</span> map(<span class="keyword">lambda</span> x: x*x , l)</div><div class="line"><span class="comment"># print map(lambda x: x*x, n_l) #TypeError: can't multiply sequence by non-int of type 'list'</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">outer</span><span class="params">()</span>:</span></div><div class="line">    x = <span class="number">1</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">print</span> x</div><div class="line">    <span class="keyword">return</span> inner</div><div class="line">f = outer()</div><div class="line">f()</div></pre></td></tr></table></figure>
+<p>4.闭包<br>闭包closure也是一个数学概念，但在这里我们只需要知道编程语言中是什么意思就行了；<br>我们来看一个奇特的现象，这个现象会结合函数式和变量生命周期来解释。既然 outer 已经调用完成了， 那么 x 的 生命周期 就结束了， 应该被销毁了， 但是我们却可以在 f() 即 inner 函数内部继续访问到 x 即 outer 作用域内的 x；这个就是 Python 的闭包 closure。</p>
+<blockquote>
+<p>Python supports a feature called function closures which means that inner functions defined in non-global scope remember what their enclosing namespaces looked like at definition time.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">outer</span><span class="params">()</span>:</span></div><div class="line">    x = <span class="number">1</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">print</span> x</div><div class="line">    <span class="keyword">return</span> inner</div><div class="line">f = outer()</div><div class="line">f()</div><div class="line">f.func_closure</div><div class="line"></div><div class="line"><span class="string">'''</span></div><div class="line">1</div><div class="line">(&lt;cell at 0x7fe28f4f4328: int object at 0x22f6158&gt;,)</div><div class="line">'''</div></pre></td></tr></table></figure>
+<p>5.mutability<br>函数内部定义的嵌套函数不能直接写 immutable 对象；如果想要修改外层函数的变量值， 使用 mutable 对象如 container；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">outer</span><span class="params">()</span>:</span></div><div class="line">    count = <span class="number">0</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">()</span>:</span></div><div class="line">        <span class="comment"># count += 1 #UnboundLocalError: local variable 'count' referenced before assignment</span></div><div class="line">        <span class="keyword">return</span> count</div><div class="line">    <span class="keyword">return</span> inner</div><div class="line"></div><div class="line">counter = outer()</div><div class="line"><span class="keyword">print</span> counter()</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">better_outer</span><span class="params">()</span>:</span></div><div class="line">    count = [<span class="number">0</span>]</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">inner</span><span class="params">()</span>:</span></div><div class="line">        count[<span class="number">0</span>] += <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> count[<span class="number">0</span>]</div><div class="line">    <span class="keyword">return</span> inner</div><div class="line"></div><div class="line">counter = better_outer()</div><div class="line"><span class="keyword">print</span> counter()</div></pre></td></tr></table></figure>
+<p>The following are immutable objects:</p>
+<ul>
+<li><p>Numeric types: int, float, complex</p>
+<ul>
+<li>string</li>
+<li>tuple</li>
+<li>frozen set</li>
+<li>bytes</li>
+</ul>
+<p>The following objects are mutable:</p>
+<ul>
+<li>list</li>
+<li>dict</li>
+<li>set</li>
+<li>byte array</li>
+</ul>
+<p><a href="https://codehabitude.com/2013/12/24/python-objects-mutable-vs-immutable/" target="_blank" rel="external">PYTHON OBJECTS: MUTABLE VS. IMMUTABLE</a></p>
+</li>
+</ul>
+<h2 id="函数式列举"><a href="#函数式列举" class="headerlink" title="函数式列举"></a>函数式列举</h2><h3 id="斐波那契数列的跟踪"><a href="#斐波那契数列的跟踪" class="headerlink" title="斐波那契数列的跟踪"></a>斐波那契数列的跟踪</h3><p>fib函数<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fib</span><span class="params">(n)</span>:</span></div><div class="line">    <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">0</span> <span class="keyword">or</span> n <span class="keyword">is</span> <span class="number">1</span>:</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> fib(n<span class="number">-1</span>) + fib(n<span class="number">-2</span>)</div></pre></td></tr></table></figure></p>
+<p>fib函数自己跟踪自己，C style 面向过程; 每次进入递归函数的时候，我们打印当前深度，并将深度加1；离开递归函数的时候，我们有打印深度，并将深度减1；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">indent = <span class="number">0</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fib_verbose_tree</span><span class="params">(n)</span>:</span></div><div class="line">    <span class="keyword">global</span> indent </div><div class="line">    <span class="keyword">print</span> <span class="string">'| '</span> * indent + <span class="string">'|--'</span>, <span class="string">'fib'</span>, n</div><div class="line">    indent += <span class="number">1</span></div><div class="line">    <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">0</span> <span class="keyword">or</span> n <span class="keyword">is</span> <span class="number">1</span>:</div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * indent + <span class="string">'|--'</span>, <span class="string">'return'</span>, repr(<span class="number">1</span>)</div><div class="line">        indent -= <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> <span class="number">1</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        value = fib_verbose_tree(n<span class="number">-1</span>) + fib_verbose_tree(n<span class="number">-2</span>)</div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * indent + <span class="string">'|--'</span>, <span class="string">'return'</span>, repr(value)</div><div class="line">        indent -= <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> value</div><div class="line"><span class="keyword">print</span> <span class="string">'-------------fib_verbose_tree-----------'</span></div><div class="line"><span class="keyword">print</span> fib_verbose_tree(<span class="number">4</span>)</div></pre></td></tr></table></figure>
+<p>但是以上函数是冗杂的，他直接毁坏了原来的斐波那契函数的干净美感， 使得函数多了一些不需要的东西。如果我们需要随时可以查看递归树，或者选择不查看，那么就得写两个函数了；但是我们发现，以上C风格的栈跟踪，其实每次都是刚刚进入函数时，打印深度，深度增加，退出函数之前，打印深度，深度减少；他不就等价于，把打印深度，深度增加，提前到函数调用之前，而打印深度，深度减少，延迟到函数返回之后，其实表现结果是一样的，这就促使我们可以想到使用一个装饰函数来包裹fib；</p>
+<p> <strong>函数用来包裹函数（high-order function），即函数的操作目标是函数，从而动态的修改函数。</strong></p>
+<ul>
+<li>完成一个栈跟踪函数，来包裹fib，从而实现分离，维护更加清晰的代码；<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">trace_tree</span><span class="params">(f)</span>:</span></div><div class="line">    f.indent = <span class="number">0</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapped</span><span class="params">(n)</span>:</span></div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * f.indent + <span class="string">'|--'</span>, f.__name__, n</div><div class="line">        f.indent += <span class="number">1</span></div><div class="line">        value = f(n)</div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * f.indent + <span class="string">'|--'</span>, <span class="string">'return'</span>, repr(value)</div><div class="line">        f.indent -= <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> value</div><div class="line">    <span class="keyword">return</span> wrapped</div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">'-------------trace_tree-----------'</span></div><div class="line">fib = trace_tree(fib)</div><div class="line"><span class="keyword">print</span> fib(<span class="number">4</span>)</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>跟进一步，我们还可以使用装饰函数，实现可插拔的动态规划编程，记录函数的返回结果，实现动态规划dp；</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">memoize</span><span class="params">(f)</span>:</span></div><div class="line">    cache = &#123;&#125;</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapped</span><span class="params">(n)</span>:</span></div><div class="line">        <span class="keyword">if</span> n <span class="keyword">not</span> <span class="keyword">in</span> cache:</div><div class="line">            cache[n] = f(n)</div><div class="line">        <span class="keyword">return</span> cache[n]</div><div class="line">    <span class="keyword">return</span> wrapped</div><div class="line"></div><div class="line"><span class="comment"># print '-------------memoize_trace_tree-----------'</span></div><div class="line"><span class="comment"># fib = trace_tree(fib)</span></div><div class="line"><span class="comment"># fib = memoize(fib)</span></div><div class="line"><span class="comment"># print fib(4)</span></div></pre></td></tr></table></figure>
+<p> <strong>函数可以用来操作函数及数据（map-reduce），从而带来更加抽象和通用的接口；</strong></p>
+<ul>
+<li>如果函数可以当做参数，那么就可以很容易写出更加通用和抽象的底层代码，比如map reduce计算框架：</li>
+<li>实现一个简单的my_map函数，可以实现对嵌套列表的操作：<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_map</span><span class="params">(operation, sequence)</span>:</span></div><div class="line">    result = []</div><div class="line">    <span class="keyword">for</span> s <span class="keyword">in</span> sequence:</div><div class="line">        <span class="keyword">if</span> isinstance(s, list):</div><div class="line">            result.append(my_map(operation, s))</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            result.append(operation(s))</div><div class="line">    <span class="keyword">return</span> result</div><div class="line"></div><div class="line">l = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</div><div class="line">n_l = [<span class="number">1</span>,<span class="number">2</span>,[<span class="number">3</span>,<span class="number">4</span>,[<span class="number">5</span>,<span class="number">6</span>]]]</div><div class="line"><span class="keyword">print</span> my_map(<span class="keyword">lambda</span> x: x*x, l)</div><div class="line"><span class="keyword">print</span> my_map(<span class="keyword">lambda</span> x: x*x, n_l)</div><div class="line"></div><div class="line"><span class="keyword">print</span> map(<span class="keyword">lambda</span> x: x*x , l)</div><div class="line"><span class="comment"># print map(lambda x: x*x, n_l) #TypeError: can't multiply sequence by non-int of type 'list'</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><strong>递归函数的包装注意事项：确定你需要包装的是那一层次，特别是多层次的包装递归函数的时候，要分清包装函数到底包装到那一层次。</strong></p>
+<ul>
+<li>用函数式编程，实现一个分析函数总的执行时间的装饰器函数<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">profile</span><span class="params">(f)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapped</span><span class="params">(n)</span>:</span></div><div class="line">        start = time.time()</div><div class="line">        value = f(n)</div><div class="line">        end = time.time()</div><div class="line">        <span class="keyword">print</span> <span class="string">"time taken: %lf sec"</span> % (end - start)</div><div class="line">        <span class="keyword">return</span> value</div><div class="line">    <span class="keyword">return</span> wrapped</div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">'-------------timing_trace_tree-----------'</span></div><div class="line">fib = profile(memoize(trace_tree(fib)))</div><div class="line"><span class="keyword">print</span> fib(<span class="number">20</span>)</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>以上这种写法到底能不能得到递归函数 fib(20) 的执行时间呢？ 其实这样写，会计算每一次递归从进入到返回的时间；最后计算的是不准确的，而且加入缓存后，遇到相同数计算时，计算过的已经被缓存，不需要再计算了；</p>
+<p>因此，对递归函数的装饰器，要特别小心:</p>
+<ul>
+<li>如果你要包装递归函数，并且想知道每一步递归的具体调用情况，必须要让包装后的函数名和原来的递归函数名字一样，要不然被包装的递归函数只是在第一层包装了；</li>
+<li>如果不想知道递归细节，只想在递归最外层执行完毕后被包装，那么就不要用和递归函数同名的函数名字，这样里面的每一层调用还是调用他原来的本尊（未加工的那个原始的函数）。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># print '-------------timing_trace_tree-----------'</span></div><div class="line"><span class="comment"># fib = memoize(trace_tree(fib))</span></div><div class="line"><span class="comment"># f = profile(fib)</span></div><div class="line"><span class="comment"># print f(20)</span></div></pre></td></tr></table></figure>
+<p>这里只要知道函数式编程的本质是 <strong>函数是一等公民，可以像变量一样随时修改，赋值，还可以当参数和返回。</strong> 分析函数式时，需要记住包装的函数之间是不断的赋值，返回；</p>
+<p>例如 t = memoize(trace_tree(fib))<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">t = memoize(trace_tree(fib))</div><div class="line"><span class="keyword">print</span> t(<span class="number">4</span>)</div><div class="line">|-- fib <span class="number">4</span></div><div class="line">| |-- <span class="keyword">return</span> <span class="number">5</span></div><div class="line"><span class="number">5</span></div></pre></td></tr></table></figure></p>
+<p>打印的只有第一层的，但是确实算出来了最终结果，这说明fib一定完成了调用，但是trace_tree并没有，为什么？因为这里的trace_tree并没有被改名为fib啊，所以在第一层的trace_tree打印之后，当递归进入下一层的时候，调用fib函数，可是fib函数是原来那个没有被装饰过的，这就导致了看不到后面几层的调用过程了。如果你把先把trace_tree(fib)赋值给fib，然后再传递给memoize，就可以了，或者直接最终赋值fib;即 fib = trace_tree(fib) fib = memoize(fib)[如果这里改成f = memoize(fib) 呢？那结果就是可以trace，但是只有第一层会被缓存，即缓存失效了] 或一步到位 fib = memoize(trace_tree(fib))</p>
+<h2 id="函数式总结"><a href="#函数式总结" class="headerlink" title="函数式总结"></a>函数式总结</h2><ol>
+<li><strong>函数用来包裹函数（high-order function），即函数的操作目标是函数，从而动态的修改函数。</strong></li>
+<li><strong>函数可以用来操作函数及数据（map-reduce），从而带来更加抽象和通用的接口；</strong></li>
+<li><strong>递归函数的包装注意事项：确定你需要包装的是那一层次，特别是多层次的包装递归函数的时候，要分清包装函数到底包装到那一层次。</strong></li>
+</ol>
+<p>函数式和面向对象/面向过程的区别到底是什么？</p>
+<ul>
+<li>函数式其实更加偏向于计算和数学思维，相同的输入，相同的输出，即函数映射关系不变，计算结果就不会改变，不会发生死锁（其实，是解决的这种问题大多数不需要锁，因为closure是不允许改变原始数据的）</li>
+<li>面向过程和面向对象更加关注计算机指令的实现，需要你理解循环，语法等细节，他们关注的是解决问题的步骤，函数式编程你造样要使用循环，但是他不是思考的重点</li>
+</ul>
+<p>不要太过于纠结他们有什么区别，所有的编程范式都不是非此即彼，水火不容，采用特定范式解决特定的问题才是好的。</p>
+<p>我们可以看到，函数式编程中，函数不仅直接调用，也可以当成参数被其他函数调用。 因此，进一步，如果我不仅想把函数当参数，还想传入值，所以再封装一下，函数和值封装后是什么。</p>
+<ul>
+<li>函数-&gt;行为</li>
+<li>值-&gt;属性</li>
+</ul>
+<p>这就是对象，而且比对象更厉害的是，他可以改变行为，随意组合行为，因为他的行为是一个函数，而函数式中，函数灵活改变，这个应对现在不断变化的需求就显得更加有用;<br>近年来大数据的兴起，数据的处理往往跟面向对象没关系，更多的是简单而大量的数据结构，借助map reduce这样的高阶函数处理更加方便，这也是函数式编程又火起来的原因;</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="http://coolshell.cn/articles/10822.html" target="_blank" rel="external">函数式编程</a></li>
+<li><a href="http://www.defmacro.org/ramblings/fp.html" target="_blank" rel="external">Functional Programming For The Rest of Us</a></li>
+<li><a href="https://maryrosecook.com/blog/post/a-practical-introduction-to-functional-programming" target="_blank" rel="external">A practical introduction to functional programming</a></li>
+<li><a href="https://docs.python.org/2/howto/functional.html#" target="_blank" rel="external">Functional Programming HOWTO</a></li>
+<li><a href="https://codesachin.wordpress.com/2016/04/03/a-practical-introduction-to-functional-programming-for-python-coders/" target="_blank" rel="external">A practical introduction to Functional Programming for Python coders</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/qrcode_for_metahacks.jpg" alt="Kinny wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫描二维码，关注我 ^_^</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/functional-programming/" rel="tag"># functional programming</a>
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/12/hexo-github-pages-build-personal-blog/" rel="prev" title="hexo + github pages 搭建个人博客">
+                hexo + github pages 搭建个人博客 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/02/09/python-functional-programming/"
+           data-title="函数式编程 functional programming" data-url="http://blog.hacksmeta.com/2017/02/09/python-functional-programming/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="Kinny" />
+          <p class="site-author-name" itemprop="name">Kinny</p>
+          <p class="site-description motion-element" itemprop="description">coding for mind, machine, human</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/kitianFresh" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/3971220798/profile" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/tian-qi-89-36" target="_blank" title="Zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Zhihu
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本特征"><span class="nav-number">1.</span> <span class="nav-text">基本特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#支持函数式的语言"><span class="nav-number">2.</span> <span class="nav-text">支持函数式的语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Python-中的基本属性"><span class="nav-number">3.</span> <span class="nav-text">Python 中的基本属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数式列举"><span class="nav-number">4.</span> <span class="nav-text">函数式列举</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#斐波那契数列的跟踪"><span class="nav-number">4.1.</span> <span class="nav-text">斐波那契数列的跟踪</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#函数式总结"><span class="nav-number">5.</span> <span class="nav-text">函数式总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kinny</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+  
+
+
+  
+  
+
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"metahacks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
