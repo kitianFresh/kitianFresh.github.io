@@ -1,0 +1,1109 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="GC,Memory Management,Java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="为什么Java要做GCJava 设计原则
+
+Simple, Object Oriented, and Familiar
+简单，面向对象，语法和 C/C++ 类似 
+
+
+Robust and Security
+健壮且安全， 因为 Java 被翻译成字节码之后在虚拟机上解释运行，会经过编译时期的compiler-time checking，以及运行时期的 run-time checking 双重检查，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java内存管理之GC">
+<meta property="og:url" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/index.html">
+<meta property="og:site_name" content="MetaHacks">
+<meta property="og:description" content="为什么Java要做GCJava 设计原则
+
+Simple, Object Oriented, and Familiar
+简单，面向对象，语法和 C/C++ 类似 
+
+
+Robust and Security
+健壮且安全， 因为 Java 被翻译成字节码之后在虚拟机上解释运行，会经过编译时期的compiler-time checking，以及运行时期的 run-time checking 双重检查，">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/gc-roots.png">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/hotspot-heap-structure.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/object-allocation.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/filling-eden.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/cp1.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/cp2.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/cp3.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/promotion.PNG">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/stop-the-world.png">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/JVMGC.png">
+<meta property="og:updated_time" content="2017-03-14T12:45:42.171Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java内存管理之GC">
+<meta name="twitter:description" content="为什么Java要做GCJava 设计原则
+
+Simple, Object Oriented, and Familiar
+简单，面向对象，语法和 C/C++ 类似 
+
+
+Robust and Security
+健壮且安全， 因为 Java 被翻译成字节码之后在虚拟机上解释运行，会经过编译时期的compiler-time checking，以及运行时期的 run-time checking 双重检查，">
+<meta name="twitter:image" content="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/gc-roots.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/"/>
+
+
+
+
+
+  <title> Java内存管理之GC | MetaHacks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">MetaHacks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">一生二，二生三，三生万物</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Kinny">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="MetaHacks">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="MetaHacks" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java内存管理之GC
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-14T00:00:00+08:00">
+                2017-03-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/GC/" itemprop="url" rel="index">
+                    <span itemprop="name">GC</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/14/java-mm-gc/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/14/java-mm-gc/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="为什么Java要做GC"><a href="#为什么Java要做GC" class="headerlink" title="为什么Java要做GC"></a>为什么Java要做GC</h1><p><a href="http://www.oracle.com/technetwork/java/intro-141325.html" target="_blank" rel="external">Java 设计原则</a></p>
+<ol>
+<li><strong>Simple, Object Oriented, and Familiar</strong><ul>
+<li>简单，面向对象，语法和 C/C++ 类似 </li>
+</ul>
+</li>
+<li><strong>Robust and Security</strong><ul>
+<li>健壮且安全， 因为 Java 被翻译成字节码之后在虚拟机上解释运行，会经过编译时期的<strong>compiler-time checking，以及运行时期的 run-time checking 双重检查</strong>，因此只要虚拟机足够健壮，不可能发生字节码注入的攻击。</li>
+</ul>
+</li>
+<li><strong>Architecture Neutral and Portable</strong><ul>
+<li>独立于平台且可移植，由于 有 JVM 的支持，Java 语言都会被编译成字节码来执行，<strong>字节码是统一的，并且Java的基本数据类型大小在不同的平台都是一样的，因此可移植性好。</strong></li>
+</ul>
+</li>
+<li><strong>High Performance</strong><ul>
+<li>高性能，<strong>自动内存管理</strong>，不需要自己手动释放内存，避免了指针的复杂性。Java并不是没有指针，只是是一种受限制的指针。</li>
+</ul>
+</li>
+<li><strong>Interpreted, Threaded, and Dynamic</strong><ul>
+<li><strong>解释型，内置线程支持，编译时静态类型检查，运行时动态链接。</strong></li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>Java 和 C/C++ 的区别是什么？</p>
+</blockquote>
+<ul>
+<li><p>编程模型方面</p>
+<ol>
+<li><strong>C语言是面向过程的命令式语言，C++是C语言的超集和扩展，同时支持面向过程和面向对象；而 Java 是纯面向对象的语言，不支持通过面向过程编写单个独立的可运行文件。</strong><ul>
+<li>比如我们在设计一个一套排序算法工具类的时候，由于对于排序比较标准是未知的，只能通过外部传递，此时 C/C++ 可以直接支持回调函数，传递函数指针，在外部定义比较函数。</li>
+<li>Java 由于只支持类和对象，因此 回调的实现必须依附于某一个类，这就是为什么 Java 会出现 comparator 比较器接口，因为Collection 对集合进行排序的时候，由于对象自身未实现 comparable 接口，无法知道比较标准，只能通过外部传递，但是因为JDK1.7以前不支持直接传入函数作为参数，只能借由一个类或者接口来代替函数。</li>
+</ul>
+</li>
+<li><strong>C++ 支持多继承，Java不支持，但是Java通过实现多接口的方式弥补了这点。</strong></li>
+</ol>
+</li>
+<li><p>编译执行方面</p>
+<ol>
+<li><strong>C/C++ 是编译型语言，Java是编译+解释型的语言。</strong><ul>
+<li>C/C++ 编译之后直接是和机器对接的二进制可执行文件，因此，不同机器指令格式会影响最终结果，因此 C/C++ 的可移植性不好，往往需要交叉编译非常复杂。</li>
+<li>Java 的可移植性很好，因为 Java 程序首先被编译成 字节码文件，然后 JVM 解释执行字节码文件。每一个 Java 程序都是依赖一个 JVM 进程运行起来的。这里的字节码对于 JVM 来说就是他的输入！由于 Java 有一套规范的语言规范，因此只要 compiler 编译之后的 字节码文件符合 JVM 执行规范，就可以实现<code>一次编译，到处执行</code>。</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>内存管理方面</p>
+<ol>
+<li><strong>C/C++ 需要程序员手动维护内存，手动释放不再使用的内存。Java 则由虚拟机的GC来管理内存的自动内存管理技术。</strong> </li>
+</ol>
+</li>
+<li><p>线程管理方面</p>
+<ol>
+<li><strong>Java 内置线程和并发包，而 C/C++ 需要依赖于操作系统线程进程。C/C++ 是更接近于底层的语言。</strong></li>
+</ol>
+</li>
+</ul>
+<p>Java 为了达到以上5点设计原则，必须要实现自动内存管理，因此 GC 必不可少。本质上来讲，<strong>Java 是被程序执行的程序， 而 C/C++ 是直接由机器执行的程序。这也是 Java 有很多特性(比如反射动态的修改代码，动态的创建类等) C/C++ 无法满足的原因。</strong></p>
+<h1 id="GC如何判定对象死亡"><a href="#GC如何判定对象死亡" class="headerlink" title="GC如何判定对象死亡"></a>GC如何判定对象死亡</h1><blockquote>
+<p><strong>为什么 Java 的对象可以自动管理呢？如果程序员不显式的指明某个对象不再使用了，JVM怎么知道对象死亡了？</strong></p>
+</blockquote>
+<p>对于 C/C++ 显然是不可能实现的，你不可能让硬件直接帮你检查哪些对象不再使用了吧。如果检查就是一种性能的大大降低。有一种叫 <a href="http://www.cprogramming.com/debugging/valgrind.html" target="_blank" rel="external">valgrind</a> 的 C/C++ 程序内存泄露检查工具，这个就相当于你把程序放到另一个程序的环境里跑，另一个程序拿到符号表什么之类的程序的元数据信息，就可以知道哪些内存没有释放了。也即是说，只要拿到程序的编译时的很多元数据信息，就容易判断对象是否已经不再使用了。那么对于 Java 能做到也是显而易见的事情了，因为他就是一个程序在根据元数据信息执行另外一个程序！</p>
+<p>我们来看一份代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestAllocation</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _1MB = <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * VM 参数： -verbose:gc -Xms20M -Xmx20M -Xmn10M -XX:+PrintGCDetails -XX:SurvivorRatio=8</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testAllocation</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">byte</span>[] a1, a2, a3, a4;</div><div class="line">		a1 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</div><div class="line">		a2 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</div><div class="line">		a3 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">2</span> * _1MB];</div><div class="line">		a4 = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4</span> * _1MB];</div><div class="line">		</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">		TestAllocation.testAllocation();</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="可达性分析"><a href="#可达性分析" class="headerlink" title="可达性分析"></a>可达性分析</h2><blockquote>
+<p>如何才能知道 a1，a2，a3，a4所指向的对象不再使用呢？</p>
+</blockquote>
+<p>有一个指标就是现在没有指针指向他们！怎么才能知道没有指针指向他们呢？简单的想其实就是找等式左边的指针值还是不是这个对象的地址，如果所有指向该对象的指针都不在了(后者值不是该对象地址了)，那么这个对象就可以认为死亡了。而等式左边的值一定是一个引用即指针，我们只要扫描现存的所有指针就行了，能扫描到的都是存活对象，不能扫描到的都是未存活对象。此时暴力的方法就是扫描一个指针数组里的指针，和另一个对象数组地址是否匹配的过程，O(n^2)。</p>
+<p>但是有一个问题就是，这些指针如何知道呢？对象地址容易在申请的时候就知道了，但是左边的指针咋办，因此使用数组不好实现，那么我们需要考虑树和图这种结构了，这个就是可达性分析。</p>
+<p>我们知道，所有栈中的引用都会指向某个堆中的对象，而堆中的对象又会有成员指向另一些对象，这样就构成了一个巨大的图。我们需要从很多根节点开始，进行图搜索遍历算法DFS或者BFS。遍历到的节点都是存活的，未遍历到的即认为死亡。这样根节点就必须是那些不能死亡的对象了，我们必须记住他们，这些对象包括</p>
+<ul>
+<li><strong>虚拟机栈（栈帧中的本地变量表）中引用的对象。</strong></li>
+<li><strong>方法区中类静态属性引用的对象。</strong></li>
+<li><strong>方法区中常量引用的对象。</strong></li>
+<li><strong>本地方法栈中JNI(即native栈)引用的对象</strong></li>
+</ul>
+<p>GC-roots 根枚举算法</p>
+<img src="/2017/03/14/java-mm-gc/gc-roots.png" alt="gc-roots" title="gc-roots">
+<h2 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h2><p>引用计数法，但是逻辑很难讲通。说的是对象每次被赋值给某一个引用，计数器就加1，每次被解引用计数器就减1，加1好理解，碰到一个引用被赋值为对象地址，就加1，当引用更换指向，那么该对象的计数器就减去1。但是这个很难理解是怎么做到的！我们只需要知道，<strong>引用计数法的缺点是无法解决循环引用的问题。</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReferenceCountGC</span> </span>&#123;</div><div class="line">	<span class="keyword">public</span> Object instance = <span class="keyword">null</span>;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> _1MB = <span class="number">1024</span> * <span class="number">1024</span>;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">byte</span>[] memory = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">4</span> * _1MB];</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testGC</span><span class="params">()</span> </span>&#123;</div><div class="line">		ReferenceCountGC objectA = <span class="keyword">new</span> ReferenceCountGC();</div><div class="line">		ReferenceCountGC objectB = <span class="keyword">new</span> ReferenceCountGC();</div><div class="line">		</div><div class="line">		objectA.instance = objectB;</div><div class="line">		objectB.instance = objectA;</div><div class="line">		</div><div class="line">		System.gc();		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		ReferenceCountGC.testGC();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果运行以上代码，那么引用计数法就无法回收这两个循环引用的对象了，尽管已经没有人再使用他们。因为他们的计数器是 1。</p>
+<h2 id="finalize-对象死亡逃逸"><a href="#finalize-对象死亡逃逸" class="headerlink" title="finalize 对象死亡逃逸"></a>finalize 对象死亡逃逸</h2><p>我们知道 Java 中有 <code>System.gc()</code> 显式的调用 gc，但是调用之后不再被引用的对象就一定会被清理吗？我们来看看一个对象自救的代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalizeEscapeGC</span> </span>&#123;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">static</span> FinalizeEscapeGC SAVE_HOOK = <span class="keyword">null</span>; <span class="comment">// 自救的钩子，如果能够被再次引用，那么对象就会逃逸成功，但只有一次机会，因为 finalize 最多调用一次</span></div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">isAlive</span><span class="params">()</span> </span>&#123;</div><div class="line">		System.out.println(<span class="string">"yes, i am still alive. :)"</span>);</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">finalize</span><span class="params">()</span> <span class="keyword">throws</span> Throwable</span>&#123;</div><div class="line">		<span class="keyword">super</span>.finalize();</div><div class="line">		System.out.println(<span class="string">"finalize method executed"</span>);</div><div class="line">		FinalizeEscapeGC.SAVE_HOOK = <span class="keyword">this</span>;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Throwable</span>&#123;</div><div class="line">		SAVE_HOOK = <span class="keyword">new</span> FinalizeEscapeGC();</div><div class="line">		<span class="comment">// 第一次进行自救，调用gc，然后gc会 把 覆盖了 finalize 方法且finalize 从未执行过的对象放入 F-QUEUE 中等待执行他们的 finalize 方法，</span></div><div class="line">		SAVE_HOOK = <span class="keyword">null</span>;</div><div class="line">		System.gc();</div><div class="line">		<span class="comment">// finalize 线程方法优先级较低，暂停一会儿等待他执行</span></div><div class="line">		Thread.sleep(<span class="number">500</span>);</div><div class="line">		<span class="keyword">if</span> (SAVE_HOOK != <span class="keyword">null</span>) &#123;</div><div class="line">			SAVE_HOOK.isAlive();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">else</span> &#123;</div><div class="line">			System.out.println(<span class="string">"no, i am dead. :("</span>);</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">		SAVE_HOOK = <span class="keyword">null</span>;</div><div class="line">		System.gc();</div><div class="line">		<span class="comment">// finalize 线程方法优先级较低，暂停一会儿等待他执行</span></div><div class="line">		Thread.sleep(<span class="number">500</span>);</div><div class="line">		<span class="keyword">if</span> (SAVE_HOOK != <span class="keyword">null</span>) &#123;</div><div class="line">			SAVE_HOOK.isAlive();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">else</span> &#123;</div><div class="line">			System.out.println(<span class="string">"no, i am dead. :("</span>);</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/** </span></div><div class="line">finalize method executed</div><div class="line">yes, i am still alive. :)</div><div class="line">no, i am dead. :(</div><div class="line">*/</div></pre></td></tr></table></figure>
+<p>我们可以看到，在第一次调用 gc之后，对象竟然活了，没有被清理，但是第二次再次调用的时候，就死亡了！主要是因为 gc 调用以后，并不是立即回收对象，而是检查对象是否需要执行 finalize 方法，需要执行的话，就把他送到 F-Queue 中，然后会通过JVM建立的 finalizer线程扫描队列中的对象，执行对象的finalize方法。而且 finalizer 线程优先级很低，不保证运行一次能够执行完！</p>
+<p><strong>这里判断是否送进F-Queue 的标准就是，对象覆盖了 finalize() 方法且 finalize 从未被虚拟机执行过。如果是没有覆盖或者 finalize 已经被虚拟机调用过了，则直接死亡，但也不一定立即就会被回收！</strong></p>
+<h1 id="堆中内存布局和管理"><a href="#堆中内存布局和管理" class="headerlink" title="堆中内存布局和管理"></a>堆中内存布局和管理</h1><blockquote>
+<p><strong>既然可以知道对象的死活了，JVM如何布局和管理这些死亡和存活的对象才能提高内存利用率防止内存耗尽呢？即堆中的布局是什么样的呢？</strong></p>
+</blockquote>
+<p>内存管理最简单的把堆看成一个一维连续数组，然后维护一个空闲链表，就是分配的时候就从空闲链表删除，释放的时候就插入空闲链表，最后为了效率可能还会引入compact紧缩技术。但是Java为什么要分代呢？</p>
+<h2 id="分代管理技术"><a href="#分代管理技术" class="headerlink" title="分代管理技术"></a>分代管理技术</h2><p>为什么要分代管理呢? <strong>原因就在于，对象大部分是短命的，这样如果对整个堆内存进行无区别的管理，短时间内分配的对象过多，整个空间分散着对象，当进行删除紧缩时，耗时巨大，性能就急剧下降。如果把堆分成几块，这样，年轻的对象在较小的空间不断的分配释放，会更快些，对于较少部分的年老对象，年龄达到后就可以放入老年区域，由于是少部分，而且不是频繁的移动，因此性能得以提高！</strong></p>
+<img src="/2017/03/14/java-mm-gc/hotspot-heap-structure.PNG" alt="hotspot-heap-structure" title="hotspot-heap-structure">
+<ul>
+<li>Young Generation（Heap）<ul>
+<li>eden space</li>
+<li>survivor space 0</li>
+<li>survivor sapce 1</li>
+</ul>
+</li>
+<li>Old Generation (Heap)</li>
+<li>Permanent Generation（Method Area）</li>
+</ul>
+<blockquote>
+<p>为什么Eden 和 Survivor 的比例一般是 8:1?</p>
+</blockquote>
+<p>因为<strong>一般对象被创建后，存活的少，死亡的多</strong>。大部分对象都是短命的，为了有足够的空间给未来做对象申请，因此 Eden 尽量大些。 </p>
+<p>GC触发分类</p>
+<ul>
+<li>Minor GC 对新生代空间进行清理</li>
+<li>Major GC 对老年代空间进行清理</li>
+<li>Full GC 清理整个堆，Young &amp; Old</li>
+</ul>
+<p>分代管理 GC 触发过程</p>
+<ol>
+<li>Object Allocation，Eden未满，直接分配</li>
+</ol>
+<img src="/2017/03/14/java-mm-gc/object-allocation.PNG" alt="object-allocation" title="object-allocation">
+<ol>
+<li>Filling Eden，此时 minor gc 触发</li>
+</ol>
+<img src="/2017/03/14/java-mm-gc/filling-eden.PNG" alt="filling-enden" title="filling-enden">
+<ol>
+<li>Copy Referenced Objects，会进行标记清理，然后拷贝Eden中幸存对象到 S0</li>
+</ol>
+<img src="/2017/03/14/java-mm-gc/cp1.PNG" alt="cp1" title="cp1">
+<ol>
+<li>Object Aging，再一次 minor gc 触发，Young Generation 中的所有幸存者(包括S0和Eden) 拷贝到 S1.（S0和S1始终有一个为空），并且 S0拷贝来的对象年龄加1</li>
+</ol>
+<img src="/2017/03/14/java-mm-gc/cp2.PNG" alt="cp2" title="cp2">
+<ol>
+<li>Additional Aging，此时，S0和S1身份互换了，S0为空，S1是非空，再一次 minor gc时，又从 Eden 和 S1 拷贝到 S0，其中 S中的老对象年龄加1.</li>
+</ol>
+<img src="/2017/03/14/java-mm-gc/cp3.PNG" alt="cp3" title="cp3">
+<ol>
+<li>Promotion, 年龄反复交替，直到年龄达到阈值，达到阈值的对象才被拷贝到 Old Generation.</li>
+</ol>
+<img src="/2017/03/14/java-mm-gc/promotion.PNG" alt="promotion" title="promotion">
+<ol>
+<li>最后，major GC 执行的时候，会检查</li>
+</ol>
+<h2 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h2><ul>
+<li>标记-清除算法(mark-sweep)</li>
+<li>复制算法(half-copy)</li>
+<li>标记-整理算法(mark-compact)</li>
+</ul>
+<p><strong>*我们知道复制操作是耗费时间的，如果复制量大，性能就大打折扣，因此这个标准直接决定了不同代之间使用的垃圾收集算法。</strong></p>
+<ul>
+<li>新生代： <strong>少量对象存活，适合复制算法</strong> </li>
+<li>老年代： <strong>大量对象存活，适合 MS 和 MC</strong></li>
+</ul>
+<h1 id="GC-类型"><a href="#GC-类型" class="headerlink" title="GC 类型"></a>GC 类型</h1><p>垃圾回收线程/GC线程：垃圾收集器工作时的线程。<br>应用程序和GC都是一种线程，以Java的main方法为例：应用程序的线程指的是main方法的主线程，GC线程是JVM的内部线程。</p>
+<p>在GC过程中，如果GC线程必须暂停应用程序线程（用户线程），则发生Stop the World(卡顿现象)。当然也可以允许GC线程和应用程序线程一起运行，即GC并不会暂停应用程序的线程。</p>
+<p>串行、并行、并发：串行和并行指的是垃圾收集器工作时暂停应用程序（发生Stop the World），使用单核CPU（串行）还是多核CPU（并行）。</p>
+<ul>
+<li>串行（Serial）：使用单核CPU串行地进行垃圾收集</li>
+<li>并行（Parallel）：使用多CPU并行地进行垃圾收集，并行是GC线程有多个，但在运行GC线程时，用户线程是阻塞的</li>
+<li>并发（Concurrent）：垃圾收集时不会暂停应用程序线程，大部分阶段用户线程和GC线程都在运行，我们称垃圾收集器和应用程序是并发运行的。</li>
+</ul>
+<img src="/2017/03/14/java-mm-gc/stop-the-world.png" alt="stop-the-world" title="stop-the-world">
+<blockquote>
+<p>我们知道 JVM 需要运行我们程序员写的java代码，那么垃圾收集器何时发生，如何发生呢？</p>
+</blockquote>
+<p>JVM 启动之后，Java Main 线程当然是优先级高的县城了，然后在合适的时间就会触发 GC 线程的运行。</p>
+<p>JVM新生代GC</p>
+<ol>
+<li>Serial Copying：单CPU、新生代小、对暂停时间要求丌高的应用</li>
+<li>Parallel Scavenge：多CPU、对暂停时间要求较短的应用</li>
+<li>ParNew：Serial Copying的多线程版本</li>
+</ol>
+<p>JVM老年代GC</p>
+<ol>
+<li>Serial MSC/Serial Old/Serial Mark Sweep Compact</li>
+<li>Parallel Compacting/Parallel Old</li>
+<li>Concurent Mark Sweep</li>
+</ol>
+<p>最新GC<br> G1</p>
+<blockquote>
+<p>垃圾收集器如何组合使用，才能让提高 JVM 的性能呢？</p>
+</blockquote>
+<img src="/2017/03/14/java-mm-gc/JVMGC.png" alt="JVMGC" title="JVMGC">
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><ol>
+<li>对象生命周期规律是大多数对象命短，基于这个规律，垃圾收集器分代，YG &amp; OG， YG中每次少量对象存活，OG中每次大量对象存活。</li>
+<li>Eden 比 Survivor 大也是新生对象命短的原因，这样就能留出足够空间给以后使用。</li>
+<li>垃圾回收算法也是看复制开销大小。存活对象越多，复制开销越大。</li>
+<li>JVM收集器并行串行并发，并发能够改善响应时间，减少卡顿。</li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/gc01/index.html" target="_blank" rel="external">Java Garbage Collection Basics</a></li>
+<li><a href="http://www.oracle.com/technetwork/java/javase/memorymanagement-whitepaper-150215.pdf" target="_blank" rel="external">Memory Management in the Java HotSpot Virtual Machine</a></li>
+<li><a href="https://www.cs.princeton.edu/picasso/mats/HotspotOverview.pdf" target="_blank" rel="external">HotspotOverview</a></li>
+<li><a href="http://www.cubrid.org/blog/dev-platform/understanding-java-garbage-collection/" target="_blank" rel="external">understanding-java-garbage-collection</a></li>
+<li><a href="https://mechanical-sympathy.blogspot.com/2013/07/java-garbage-collection-distilled.html" target="_blank" rel="external">java-garbage-collection-distilled</a></li>
+<li><a href="http://zqhxuyuan.github.io/2016/07/26/JVM/#" target="_blank" rel="external">JVM GC</a>这篇博客基本涵盖所有，非常详细！</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/qrcode_for_metahacks.jpg" alt="Kinny wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫描二维码，关注我 ^_^</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GC/" rel="tag"># GC</a>
+          
+            <a href="/tags/Memory-Management/" rel="tag"># Memory Management</a>
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/09/leetcode-linkedlist-summary/" rel="next" title="LeetCode 系列之链表">
+                <i class="fa fa-chevron-left"></i> LeetCode 系列之链表
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/03/14/java-mm-gc/"
+           data-title="Java内存管理之GC" data-url="http://blog.hacksmeta.com/2017/03/14/java-mm-gc/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="Kinny" />
+          <p class="site-author-name" itemprop="name">Kinny</p>
+          <p class="site-description motion-element" itemprop="description">coding for mind, machine, human</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/kitianFresh" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/3971220798/profile" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/tian-qi-89-36" target="_blank" title="Zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Zhihu
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么Java要做GC"><span class="nav-number">1.</span> <span class="nav-text">为什么Java要做GC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GC如何判定对象死亡"><span class="nav-number">2.</span> <span class="nav-text">GC如何判定对象死亡</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#可达性分析"><span class="nav-number">2.1.</span> <span class="nav-text">可达性分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用计数法"><span class="nav-number">2.2.</span> <span class="nav-text">引用计数法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#finalize-对象死亡逃逸"><span class="nav-number">2.3.</span> <span class="nav-text">finalize 对象死亡逃逸</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#堆中内存布局和管理"><span class="nav-number">3.</span> <span class="nav-text">堆中内存布局和管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#分代管理技术"><span class="nav-number">3.1.</span> <span class="nav-text">分代管理技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#垃圾收集算法"><span class="nav-number">3.2.</span> <span class="nav-text">垃圾收集算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GC-类型"><span class="nav-number">4.</span> <span class="nav-text">GC 类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kinny</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"metahacks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

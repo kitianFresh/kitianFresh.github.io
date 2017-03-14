@@ -97,7 +97,7 @@ dtype默认从其他参数推断
 1234567import">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Numpy介绍(part1)-入门及核心指南">
-<meta property="og:url" content="http://blog.hacksmeta.com/2017/02/20/numpynotes-1-basics-and-core/index.html">
+<meta property="og:url" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/index.html">
 <meta property="og:site_name" content="MetaHacks">
 <meta property="og:description" content="Numpy array creation创建均匀分布的值arange
 arange([start,] stop[, step,], dtype=None)：生成一个线性增长的某一范围内的数组，和Python中的 range 类似，但是arange支持浮点参数
@@ -107,12 +107,12 @@ dtype默认从其他参数推断
 
 
 1234567import">
-<meta property="og:image" content="http://blog.hacksmeta.com/./numpynotes-1-basics-and-core/axis1.jpeg">
-<meta property="og:image" content="http://blog.hacksmeta.com/./numpynotes-1-basics-and-core/axis.jpeg">
-<meta property="og:image" content="http://blog.hacksmeta.com/./numpynotes-1-basics-and-core/slicing.png">
-<meta property="og:image" content="http://blog.hacksmeta.com/./numpynotes-1-basics-and-core/broadcasting_example_1.png">
-<meta property="og:image" content="http://blog.hacksmeta.com/./numpynotes-1-basics-and-core/broadcasting_example_2.png">
-<meta property="og:updated_time" content="2017-02-20T15:51:31.000Z">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/axis1.jpeg">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/axis.jpeg">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/slicing.png">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/broadcasting_example_1.png">
+<meta property="og:image" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/broadcasting_example_2.png">
+<meta property="og:updated_time" content="2017-03-14T08:15:51.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Numpy介绍(part1)-入门及核心指南">
 <meta name="twitter:description" content="Numpy array creation创建均匀分布的值arange
@@ -123,7 +123,7 @@ dtype默认从其他参数推断
 
 
 1234567import">
-<meta name="twitter:image" content="http://blog.hacksmeta.com/./numpynotes-1-basics-and-core/axis1.jpeg">
+<meta name="twitter:image" content="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/axis1.jpeg">
 
 
 
@@ -151,7 +151,7 @@ dtype默认从其他参数推断
 
 
 
-  <link rel="canonical" href="http://blog.hacksmeta.com/2017/02/20/numpynotes-1-basics-and-core/"/>
+  <link rel="canonical" href="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/"/>
 
 
 
@@ -332,7 +332,7 @@ dtype默认从其他参数推断
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://blog.hacksmeta.com/2017/02/20/numpynotes-1-basics-and-core/">
+  <link itemprop="mainEntityOfPage" href="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="Kinny">
@@ -371,8 +371,8 @@ dtype默认从其他参数推断
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-20T23:51:31+08:00">
-                2017-02-20
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-11T00:00:00+08:00">
+                2017-02-11
               </time>
             
 
@@ -423,8 +423,8 @@ dtype默认从其他参数推断
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2017/02/20/numpynotes-1-basics-and-core/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/20/numpynotes-1-basics-and-core/" itemprop="commentCount"></span>
+                <a href="/2017/02/11/numpynotes-1-basics-and-core/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/02/11/numpynotes-1-basics-and-core/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -521,8 +521,9 @@ shape:  (5,)
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">x = np.array([ [<span class="number">67</span>, <span class="number">63</span>, <span class="number">87</span>],</div><div class="line">               [<span class="number">77</span>, <span class="number">69</span>, <span class="number">59</span>],</div><div class="line">               [<span class="number">85</span>, <span class="number">87</span>, <span class="number">99</span>],</div><div class="line">               [<span class="number">79</span>, <span class="number">72</span>, <span class="number">71</span>],</div><div class="line">               [<span class="number">63</span>, <span class="number">89</span>, <span class="number">93</span>],</div><div class="line">               [<span class="number">68</span>, <span class="number">92</span>, <span class="number">78</span>]])</div><div class="line">print(np.shape(x))</div></pre></td></tr></table></figure>
 <pre><code>(6, 3)
 </code></pre><p>二维数组的轴，你可以理解为二维平面坐标轴，axis=0 表示当沿着y方向，axis=1 表示沿着x方向</p>
-<p><img src="./numpynotes-1-basics-and-core/axis1.jpeg" alt="axis1"><br>三维数组的轴，可以理解为三维空间坐标轴，axis=0 表示当沿着y方向，axis=1 表示沿着x方向，axis=2 表示沿着z方向</p>
-<p><img src="./numpynotes-1-basics-and-core/axis.jpeg" alt="axis"></p>
+<img src="/2017/02/11/numpynotes-1-basics-and-core/axis1.jpeg" alt="axis1" title="axis1">
+<p>三维数组的轴，可以理解为三维空间坐标轴，axis=0 表示当沿着y方向，axis=1 表示沿着x方向，axis=2 表示沿着z方向</p>
+<img src="/2017/02/11/numpynotes-1-basics-and-core/axis.jpeg" alt="axis" title="axis">
 <p><strong>高维空间是无法映射到物理空间的，因此也不能画出图像来，但是还是一样，每一个维度对应一个轴，沿着某一个轴，剩下的维度构成一个超空间。</strong>对于2维，沿着x轴，剩下的y维度构成一个直线向下平移；</p>
 <blockquote>
 <p>多维数组维度的理解，这里如何看出Q是三维且shape为(2,3,3)呢？</p>
@@ -677,7 +678,7 @@ array([ 4, 12, 20])
 <ul>
 <li>X[start:stop:step], [start, stop)左闭右开</li>
 </ul>
-<p><img src="./numpynotes-1-basics-and-core/slicing.png" alt="slicing"></p>
+<img src="/2017/02/11/numpynotes-1-basics-and-core/slicing.png" alt="slicing" title="slicing">
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">X = np.arange(<span class="number">28</span>)</div><div class="line">print(X)</div><div class="line"><span class="keyword">print</span> X[::<span class="number">-1</span>]</div><div class="line">X = np.reshape(X,(<span class="number">4</span>,<span class="number">7</span>))</div><div class="line">view = X[::<span class="number">2</span>, ::<span class="number">3</span>]</div><div class="line">print(view)</div><div class="line">view[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">777</span></div><div class="line"><span class="keyword">print</span> X</div><div class="line">view = X[<span class="number">1</span>:<span class="number">-1</span>, <span class="number">1</span>:<span class="number">-1</span>]</div><div class="line"><span class="keyword">print</span> view</div><div class="line">view = X[::<span class="number">-1</span>, ::<span class="number">-1</span>]</div><div class="line"><span class="keyword">print</span> view</div></pre></td></tr></table></figure>
 <pre><code>[ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
  25 26 27]
@@ -1069,7 +1070,7 @@ ValueError                                Traceback (most recent call last)
 
 
 ValueError: operands could not be broadcast together with shapes (4,3) (3,1) 
-</code></pre><p><img src="./numpynotes-1-basics-and-core/broadcasting_example_1.png" alt="broadcasting_example_1"></p>
+</code></pre><img src="/2017/02/11/numpynotes-1-basics-and-core/broadcasting_example_1.png" alt="broadcasting_example_1" title="broadcasting_example_1">
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">A = np.array([<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>])</div><div class="line">B = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line"><span class="keyword">print</span> repr(A[:, np.newaxis])</div><div class="line"><span class="keyword">print</span> repr(A[:, np.newaxis] * B)</div></pre></td></tr></table></figure>
 <pre><code>array([[10],
        [20],
@@ -1077,7 +1078,7 @@ ValueError: operands could not be broadcast together with shapes (4,3) (3,1)
 array([[10, 20, 30],
        [20, 40, 60],
        [30, 60, 90]])
-</code></pre><p><img src="./numpynotes-1-basics-and-core/broadcasting_example_2.png" alt="broadcasting_example_2"></p>
+</code></pre><img src="/2017/02/11/numpynotes-1-basics-and-core/broadcasting_example_2.png" alt="broadcasting_example_2" title="broadcasting_example_2">
 <p>以下是实现以上操作的另外两种实现，显式的使用了 concatenate 和 tile 方法升维；</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">A = np.array([ [<span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>], [<span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>], [<span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>] ])</div><div class="line">B = np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</div><div class="line">B = B[np.newaxis, :]</div><div class="line">B = np.concatenate((B, B, B))</div><div class="line">print(<span class="string">"Multiplication: "</span>)</div><div class="line">print(A * B)</div><div class="line">print(<span class="string">"... and now addition again: "</span>)</div><div class="line">print(A + B)</div><div class="line"></div><div class="line">A = np.array([ [<span class="number">11</span>, <span class="number">12</span>, <span class="number">13</span>], [<span class="number">21</span>, <span class="number">22</span>, <span class="number">23</span>], [<span class="number">31</span>, <span class="number">32</span>, <span class="number">33</span>] ])</div><div class="line">B = np.tile(np.array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]), (<span class="number">3</span>, <span class="number">1</span>))</div><div class="line">print(B)</div><div class="line">print(<span class="string">"Multiplication: "</span>)</div><div class="line">print(A * B)</div><div class="line">print(<span class="string">"... and now addition again: "</span>)</div><div class="line">print(A + B)</div></pre></td></tr></table></figure>
 <pre><code>Multiplication: 
@@ -1347,7 +1348,7 @@ array([[[3, 3, 3],
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/12/hexo-github-pages-build-personal-blog/" rel="next" title="hexo + github pages 搭建个人博客">
+              <a href="/2017/02/06/hexo-github-pages-build-personal-blog/" rel="next" title="hexo + github pages 搭建个人博客">
                 <i class="fa fa-chevron-left"></i> hexo + github pages 搭建个人博客
               </a>
             
@@ -1356,6 +1357,10 @@ array([[[3, 3, 3],
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/09/leetcode-linkedlist-summary/" rel="prev" title="LeetCode 系列之链表">
+                LeetCode 系列之链表 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -1381,8 +1386,8 @@ array([[[3, 3, 3],
           
   <div class="comments" id="comments">
     
-      <div class="ds-thread" data-thread-key="2017/02/20/numpynotes-1-basics-and-core/"
-           data-title="Numpy介绍(part1)-入门及核心指南" data-url="http://blog.hacksmeta.com/2017/02/20/numpynotes-1-basics-and-core/">
+      <div class="ds-thread" data-thread-key="2017/02/11/numpynotes-1-basics-and-core/"
+           data-title="Numpy介绍(part1)-入门及核心指南" data-url="http://blog.hacksmeta.com/2017/02/11/numpynotes-1-basics-and-core/">
       </div>
     
   </div>
@@ -1429,7 +1434,7 @@ array([[[3, 3, 3],
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1438,7 +1443,7 @@ array([[[3, 3, 3],
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1447,7 +1452,7 @@ array([[[3, 3, 3],
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
