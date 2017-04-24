@@ -1,0 +1,1091 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="functional programming,python,decorator," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="函数式装饰器的实现,得益于 Python 支持函数式编程! 因此, 记住, 装饰器的本质是函数式! 函数式编程,可以查看我的一篇基础教程! 从另一个角度来讲, 更多的是动态的修改代码! 需要注意的是, Python Decorator 并不是装饰器模式, 虽然他可以很方便的实现装饰器模式. 我更多的理解是, Python Decorator 是 code decorator, 就是动态修改代码的特">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python Decorator(1)">
+<meta property="og:url" content="http://blog.hacksmeta.com/2017/04/24/python-decorator-1/index.html">
+<meta property="og:site_name" content="MetaHacks">
+<meta property="og:description" content="函数式装饰器的实现,得益于 Python 支持函数式编程! 因此, 记住, 装饰器的本质是函数式! 函数式编程,可以查看我的一篇基础教程! 从另一个角度来讲, 更多的是动态的修改代码! 需要注意的是, Python Decorator 并不是装饰器模式, 虽然他可以很方便的实现装饰器模式. 我更多的理解是, Python Decorator 是 code decorator, 就是动态修改代码的特">
+<meta property="og:updated_time" content="2017-04-24T10:22:39.804Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python Decorator(1)">
+<meta name="twitter:description" content="函数式装饰器的实现,得益于 Python 支持函数式编程! 因此, 记住, 装饰器的本质是函数式! 函数式编程,可以查看我的一篇基础教程! 从另一个角度来讲, 更多的是动态的修改代码! 需要注意的是, Python Decorator 并不是装饰器模式, 虽然他可以很方便的实现装饰器模式. 我更多的理解是, Python Decorator 是 code decorator, 就是动态修改代码的特">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.hacksmeta.com/2017/04/24/python-decorator-1/"/>
+
+
+
+
+
+  <title> Python Decorator(1) | MetaHacks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">MetaHacks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">一生二，二生三，三生万物</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.hacksmeta.com/2017/04/24/python-decorator-1/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Kinny">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="MetaHacks">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="MetaHacks" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Python Decorator(1)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-24T00:00:00+08:00">
+                2017-04-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/04/24/python-decorator-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/04/24/python-decorator-1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="函数式"><a href="#函数式" class="headerlink" title="函数式"></a>函数式</h1><p>装饰器的实现,得益于 Python 支持函数式编程! 因此, 记住, <strong>装饰器的本质是函数式!</strong> 函数式编程,可以查看我的一篇基础教程! 从另一个角度来讲, 更多的是动态的修改代码! 需要注意的是, Python Decorator 并不是装饰器模式, 虽然他可以很方便的实现装饰器模式. 我更多的理解是, <strong>Python Decorator 是 code decorator, 就是动态修改代码的特性!</strong></p>
+<h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fib</span><span class="params">(n)</span>:</span></div><div class="line">    <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">0</span> <span class="keyword">or</span> n <span class="keyword">is</span> <span class="number">1</span>:</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> fib(n<span class="number">-1</span>) + fib(n<span class="number">-2</span>)</div><div class="line">old = fib <span class="comment"># 后面的 fib 可能会被修改, 先保存起来!</span></div></pre></td></tr></table></figure>
+<p>首先实现一个递归函数, 然后写出递归函数的递归深度跟踪函数!对于深度的跟踪, C style code 当然是需要全局变量做深度记录和跟踪, 最后写出来的代码是这样的!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">indent = <span class="number">0</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">fib_verbose_tree</span><span class="params">(n)</span>:</span></div><div class="line">    <span class="keyword">global</span> indent </div><div class="line">    <span class="keyword">print</span> <span class="string">'| '</span> * indent + <span class="string">'|--'</span>, <span class="string">'fib'</span>, n</div><div class="line">    indent += <span class="number">1</span></div><div class="line">    <span class="keyword">if</span> n <span class="keyword">is</span> <span class="number">0</span> <span class="keyword">or</span> n <span class="keyword">is</span> <span class="number">1</span>:</div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * indent + <span class="string">'|--'</span>, <span class="string">'return'</span>, repr(<span class="number">1</span>)</div><div class="line">        indent -= <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> <span class="number">1</span></div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        value = fib_verbose_tree(n<span class="number">-1</span>) + fib_verbose_tree(n<span class="number">-2</span>)</div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * indent + <span class="string">'|--'</span>, <span class="string">'return'</span>, repr(value)</div><div class="line">        indent -= <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> value</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span> <span class="string">'-------------fib_verbose_tree-----------'</span></div><div class="line"><span class="keyword">print</span> fib_verbose_tree(<span class="number">4</span>)</div></pre></td></tr></table></figure>
+<pre><code>-------------fib_verbose_tree-----------
+|-- fib 4
+| |-- fib 3
+| | |-- fib 2
+| | | |-- fib 1
+| | | | |-- return 1
+| | | |-- fib 0
+| | | | |-- return 1
+| | | |-- return 2
+| | |-- fib 1
+| | | |-- return 1
+| | |-- return 3
+| |-- fib 2
+| | |-- fib 1
+| | | |-- return 1
+| | |-- fib 0
+| | | |-- return 1
+| | |-- return 2
+| |-- return 5
+5
+</code></pre><p>如果使用函数式编程, 我们可以得到一个递归跟踪的外壳函数,负责深度的加减处理!其实就是函数调用之前,深度加1,出栈后,深度减1.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">trace_tree</span><span class="params">(f)</span>:</span></div><div class="line">    f.indent = <span class="number">0</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapped</span><span class="params">(*args)</span>:</span></div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * f.indent + <span class="string">'|--'</span>, f.__name__, str(args)</div><div class="line">        f.indent += <span class="number">1</span></div><div class="line">        value = f(*args)</div><div class="line">        <span class="keyword">print</span> <span class="string">'| '</span> * f.indent + <span class="string">'|--'</span>, <span class="string">'return'</span>, repr(value)</div><div class="line">        f.indent -= <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> value</div><div class="line">    <span class="keyword">return</span> wrapped</div></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">fib = old</div><div class="line"><span class="keyword">print</span> <span class="string">'-------------trace_tree-----------'</span></div><div class="line">fib = trace_tree(fib)</div><div class="line"><span class="keyword">print</span> fib(<span class="number">4</span>)</div></pre></td></tr></table></figure>
+<pre><code>-------------trace_tree-----------
+|-- fib (4,)
+| |-- fib (3,)
+| | |-- fib (2,)
+| | | |-- fib (1,)
+| | | | |-- return 1
+| | | |-- fib (0,)
+| | | | |-- return 1
+| | | |-- return 2
+| | |-- fib (1,)
+| | | |-- return 1
+| | |-- return 3
+| |-- fib (2,)
+| | |-- fib (1,)
+| | | |-- return 1
+| | |-- fib (0,)
+| | | |-- return 1
+| | |-- return 2
+| |-- return 5
+5
+</code></pre><p>最后,<strong>我们调用 fib , 其实就是在调用 wrapped() 函数!因为此时的 fib 已经等于另外一个函数了! fib 的代码已经成为 wrapped 了, 即 fib 的代码现在已经是 wrapped 函数的代码了.因为 fib 指针对象现在指向的是 wrapped 函数.</strong></p>
+<p>下面我们来做 dp 编程.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">memoize</span><span class="params">(f)</span>:</span></div><div class="line">    cache = &#123;&#125;</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapped</span><span class="params">(n)</span>:</span></div><div class="line">        <span class="keyword">if</span> n <span class="keyword">not</span> <span class="keyword">in</span> cache:</div><div class="line">            cache[n] = f(n)</div><div class="line">        <span class="keyword">return</span> cache[n]</div><div class="line">    <span class="keyword">return</span> wrapped</div><div class="line"></div><div class="line"><span class="keyword">print</span> <span class="string">'-------------memoize_trace_tree-----------'</span></div><div class="line">fib = old</div><div class="line">fib = trace_tree(fib)</div><div class="line">fib = memoize(fib)</div><div class="line"><span class="keyword">print</span> fib(<span class="number">4</span>)</div></pre></td></tr></table></figure>
+<pre><code>-------------memoize_trace_tree-----------
+|-- fib (4,)
+| |-- fib (3,)
+| | |-- fib (2,)
+| | | |-- fib (1,)
+| | | | |-- return 1
+| | | |-- fib (0,)
+| | | | |-- return 1
+| | | |-- return 2
+| | |-- return 3
+| |-- return 5
+5
+</code></pre><p>以上是 DP 打表过程, 也可以当作装饰器来使用!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">profile</span><span class="params">(f)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapped</span><span class="params">(n)</span>:</span></div><div class="line">        start = time.time()</div><div class="line">        value = f(n)</div><div class="line">        end = time.time()</div><div class="line">        <span class="keyword">print</span> <span class="string">"time taken: %lf sec"</span> % (end - start)</div><div class="line">        <span class="keyword">return</span> value</div><div class="line">    <span class="keyword">return</span> wrapped</div><div class="line"></div><div class="line">fib = old</div><div class="line"><span class="keyword">print</span> <span class="string">'-------------timing_memoized-----------'</span></div><div class="line">fib = memoize(fib)</div><div class="line">f = profile(fib)</div><div class="line"><span class="keyword">print</span> f(<span class="number">20</span>)</div><div class="line"></div><div class="line">fib = old</div><div class="line"><span class="keyword">print</span> <span class="string">'-------------timing_unmemoized-----------'</span></div><div class="line">f = profile(fib)</div><div class="line"><span class="keyword">print</span> f(<span class="number">20</span>)</div></pre></td></tr></table></figure>
+<pre><code>-------------timing_memoized-----------
+time taken: 0.000021 sec
+10946
+-------------timing_unmemoized-----------
+time taken: 0.003210 sec
+10946
+</code></pre><h1 id="Syntax-Sugar"><a href="#Syntax-Sugar" class="headerlink" title="Syntax Sugar"></a>Syntax Sugar</h1><p>Python 其实允许另一种形式的装饰器, 直接使用 @decorator 加在需要装饰的函数定义上面, 即可完成装饰! Magic!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@trace_tree</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">my_pow</span><span class="params">(x, n)</span>:</span></div><div class="line">    <span class="keyword">if</span> n == <span class="number">0</span>:</div><div class="line">        <span class="keyword">return</span> <span class="number">1</span></div><div class="line">    <span class="keyword">if</span> n == <span class="number">1</span>:</div><div class="line">        <span class="keyword">return</span> x</div><div class="line">    <span class="keyword">return</span> my_pow(x, n/<span class="number">2</span>) * my_pow(x, n/<span class="number">2</span>) <span class="keyword">if</span> n % <span class="number">2</span> == <span class="number">0</span> <span class="keyword">else</span> my_pow(x, n/<span class="number">2</span>) * my_pow(x, n/<span class="number">2</span>) * x</div><div class="line"></div><div class="line">my_pow(<span class="number">2</span>, <span class="number">5</span>)</div></pre></td></tr></table></figure>
+<pre><code>|-- my_pow (2, 5)
+| |-- my_pow (2, 2)
+| | |-- my_pow (2, 1)
+| | | |-- return 2
+| | |-- my_pow (2, 1)
+| | | |-- return 2
+| | |-- return 4
+| |-- my_pow (2, 2)
+| | |-- my_pow (2, 1)
+| | | |-- return 2
+| | |-- my_pow (2, 1)
+| | | |-- return 2
+| | |-- return 4
+| |-- return 32
+
+32
+</code></pre><p>这就是 Python 中的语法糖, <code>@trace_tree</code> 之后, Python 自动执行了 <code>my_pow = trace_tree(my_pow)</code>.</p>
+<h1 id="Decorator"><a href="#Decorator" class="headerlink" title="Decorator"></a>Decorator</h1><p>Python 中有很多不同的 decorator, 根据装饰器本身的定义分两大类:</p>
+<ul>
+<li>函数定义的decorator, <strong>decorator 本身是使用 函数定义的.</strong><ul>
+<li>不带参数, 即装饰器本身不带参数的.</li>
+<li>带参数, 即装饰器本身带参数的.</li>
+</ul>
+</li>
+<li>类定义的decorator, <strong>decorator 本身是使用 类定义的.</strong><ul>
+<li>不带参数, 即装饰器本身不带参数的.</li>
+<li>带参数, 即装饰器本身带参数的. </li>
+</ul>
+</li>
+</ul>
+<p>按照 装饰器的用途, 即装饰的是 普通函数, 还是类方法又分两大类.</p>
+<p>Python 对 decorator 的定义:</p>
+<blockquote>
+<p>A decorator is a function which accepts a function and returns a new function. Since it’s a function, we must provide three pieces of information: the name of the decorator, a parameter, and a suite of statements that creates and returns the resulting function.</p>
+<p>The suite of statements in a decorator will generally include a function def statement to create the new function and a return statement.</p>
+<p>A common alternative is to include a class definition statement . If a class definition is used, that class must define a callable object by including a definition for the __call__() method and (usually) being a subclass of collections.Callable.</p>
+<p>There are two kinds of decorators, decorators without arguments and decorators with arguments. In the first case, the operation of the decorator is very simple. In the case where the decorator accepts areguments the definition of the decorator is rather obscure, we’ll return to this in Defining Complex Decorators.</p>
+</blockquote>
+<h2 id="Function-Decorator"><a href="#Function-Decorator" class="headerlink" title="Function Decorator"></a>Function Decorator</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">entry_exit</span><span class="params">(f)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">new_f</span><span class="params">()</span>:</span></div><div class="line">        print(<span class="string">"Entring"</span>, f.__name__)</div><div class="line">        f()</div><div class="line">        print(<span class="string">"Exited"</span>, f.__name__)</div><div class="line">        <span class="comment">#new_f.__name__ = f.__name__</span></div><div class="line">    <span class="keyword">return</span> new_f</div><div class="line">    <span class="comment">#return new_f()</span></div><div class="line"></div><div class="line"><span class="meta">@entry_exit</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func1</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">"call func1()"</span>)</div><div class="line"></div><div class="line"><span class="meta">@entry_exit</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func2</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">"call func2()"</span>)</div><div class="line"></div><div class="line">func1()</div><div class="line">func2()</div><div class="line">print(func1.__name__)</div></pre></td></tr></table></figure>
+<pre><code>(&apos;Entring&apos;, &apos;func1&apos;)
+call func1()
+(&apos;Exited&apos;, &apos;func1&apos;)
+(&apos;Entring&apos;, &apos;func2&apos;)
+call func2()
+(&apos;Exited&apos;, &apos;func2&apos;)
+new_f
+</code></pre><p>这个简单的例子, 可以看出, 经过装饰器 <code>@entry_exit</code> 装饰的函数, 他的相关信息发生改变了! 函数名字变成了 new_f. <strong>因此, 我们一般会在返回 new_f 之前修改 new_f.__name__ 等函数本身自带的属性信息为 原来的函数!</strong> 稍后,我们还会看到, 可以实现一个装饰器实现这个功能, 而且 Python 的一些包已经实现了!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">p_decorator</span><span class="params">(func)</span>:</span></div><div class="line">   <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">       <span class="keyword">return</span> <span class="string">"&lt;p&gt;&#123;0&#125;&lt;/p&gt;"</span>.format(func(*args, **kwargs))</div><div class="line">   <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.name = <span class="string">"kinny"</span></div><div class="line">        self.family = <span class="string">"Tian"</span></div><div class="line"></div><div class="line"><span class="meta">    @p_decorator</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_fullname</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self.name+<span class="string">" "</span>+self.family</div><div class="line"></div><div class="line">my_person = Person()</div><div class="line"></div><div class="line"><span class="keyword">print</span> my_person.get_fullname()</div></pre></td></tr></table></figure>
+<pre><code>&lt;p&gt;kinny Tian&lt;/p&gt;
+</code></pre><h3 id="无参数的-function-decorator"><a href="#无参数的-function-decorator" class="headerlink" title="无参数的 function decorator"></a>无参数的 function decorator</h3><p>无参数的 function decorator 模式比较固定, 由于 decorator 本身没有额外参数, 写法也很简单, <strong>遵循传入函数, 返回一个经过包装的函数的原则即可, 只有两个层次</strong>. 这个内部返回函数的参数一般通用的写法是 <code>resultFunction(*args, **kwargs)</code>. 这个参数同时也可以接受被包装函数的参数, 因此写法更加通用! 当然如果你的装饰器只给某些特定的函数用, 那么参数也可以是这些特定的被包装函数参数保持一致即可!<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">myDecorator</span><span class="params">( argumentFunction )</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">resultFunction</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        dosomething()</div><div class="line">        argumentFunction(*args, **kwargs)</div><div class="line">        dosomething()</div><div class="line">    resultFunction.__doc__= argumentFunction.__doc__</div><div class="line">    <span class="keyword">return</span> resultFunction</div></pre></td></tr></table></figure></p>
+<h3 id="有参数的-function-decorator"><a href="#有参数的-function-decorator" class="headerlink" title="有参数的 function decorator"></a>有参数的 function decorator</h3><p><strong>带参数的 function decorator 写法稍微复杂, 因为他自己也有参数. 所以第一层次函数, 就不能把 被包装函数当参数了. 那么只有内部多加一层次, 用来接受被包装函数参数了! 因此他的经典写法是 三层次!</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">decorator_function_with_arguments</span><span class="params">(arg1, arg2, arg3)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrap</span><span class="params">(f)</span>:</span></div><div class="line">        print(<span class="string">"Enter wrap()"</span>)</div><div class="line">        </div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapped_f</span><span class="params">(*args)</span>:</span></div><div class="line">            print(<span class="string">"Inside wrapped_f()"</span>)</div><div class="line">            print(<span class="string">"Decorator arguments: "</span>, arg1, arg2, arg3)</div><div class="line">            f(*args)</div><div class="line">            print(<span class="string">"After f(*args)"</span>)</div><div class="line">        </div><div class="line">        print(<span class="string">"Exit wrap()"</span>)</div><div class="line">        <span class="keyword">return</span> wrapped_f</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrap</div><div class="line"></div><div class="line"><span class="meta">@decorator_function_with_arguments("hello", "world", 22)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">sayHello</span><span class="params">(a1, a2, a3, a4)</span>:</span></div><div class="line">    print(<span class="string">'sayHello arguments:'</span>, a1, a2, a3, a4)</div><div class="line"></div><div class="line">print(<span class="string">"After decoration"</span>)</div><div class="line"></div><div class="line">print(<span class="string">"----------------Preparing to call sayHello()----------------"</span>)</div><div class="line">sayHello(<span class="string">"say"</span>, <span class="string">"hello"</span>, <span class="string">"argument"</span>, <span class="string">"list"</span>)</div><div class="line">print(<span class="string">"----------------After first sayHello() call----------------"</span>)</div><div class="line">sayHello(<span class="string">"a"</span>, <span class="string">"different"</span>, <span class="string">"set of"</span>, <span class="string">"arguments"</span>)</div><div class="line">print(<span class="string">"----------------After second sayHello() call----------------"</span>)</div></pre></td></tr></table></figure>
+<pre><code>Enter wrap()
+Exit wrap()
+After decoration
+----------------Preparing to call sayHello()----------------
+Inside wrapped_f()
+(&apos;Decorator arguments: &apos;, &apos;hello&apos;, &apos;world&apos;, 22)
+(&apos;sayHello arguments:&apos;, &apos;say&apos;, &apos;hello&apos;, &apos;argument&apos;, &apos;list&apos;)
+After f(*args)
+----------------After first sayHello() call----------------
+Inside wrapped_f()
+(&apos;Decorator arguments: &apos;, &apos;hello&apos;, &apos;world&apos;, 22)
+(&apos;sayHello arguments:&apos;, &apos;a&apos;, &apos;different&apos;, &apos;set of&apos;, &apos;arguments&apos;)
+After f(*args)
+----------------After second sayHello() call----------------
+</code></pre><blockquote>
+<p>来看看常见的函数decorator为啥都要写几层包裹函数，这是很多例子都有的，但是没告诉你为啥要这样写。</p>
+</blockquote>
+<p>Python 解释器读取到 <code>@decorator_function_with_arguments(&quot;hello&quot;, &quot;world&quot;, 22)</code> 时，首先查找 <code>decorator_function_with_arguments</code> 并调用，但是 Python 知道这是一个装饰器啊，他还需要一个 被装饰的函数 <code>f</code> 做参数，和 class decorator 一样， 在完成 <code>dfwa = decorator_function_with_arguments(arg1, arg2, arg3)</code> 之后，继续 寻找 <code>f</code>， 然后 <code>f = dfwa(f)</code>, 此时还是装饰过程， 因此 返回的还必须是 callable 对象，即函数。 也就是说， <strong>Python 的 带参数函数装饰器 解释过程 就是 <code>f = dfwa(arg)(f) =&gt; f()</code> 模型，三个调用才发生真正的调用，因此 function decorator 里面 必须是 嵌套 2 层 wrap func.</strong></p>
+<h2 id="Class-Decorator"><a href="#Class-Decorator" class="headerlink" title="Class Decorator"></a>Class Decorator</h2><p><strong>因为 Python 要求装饰器必须返回一个 callable 对象, 因此, class decorator 必须要实现 __call__ 函数, 这样, 返回的对象才能被调用!</strong></p>
+<h3 id="无参数的-class-decorator"><a href="#无参数的-class-decorator" class="headerlink" title="无参数的 class decorator"></a>无参数的 class decorator</h3><p><strong>如果无参数, 那么解释器碰到 <code>@decorator_without_arguments</code> 就会直接寻找 被装饰函数 <code>f</code>, 然后构造装饰后的对象! 因此 <code>decorator_without_arguments</code> 的 初始化方法 __init__() 的参数就是 f 了. 然后新构造的对象, 每次被调用的时候, 就是 <code>decorated.__call__(*args)</code>.</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">decorator_without_arguments</span><span class="params">(object)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, f)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        If there are no decorator arguments, the function</div><div class="line">        to be decorated is passed to the constructor.</div><div class="line">        """</div><div class="line">        print(<span class="string">"Inside __init__()"</span>)</div><div class="line">        self.f = f</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self, *args)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        The __call__ method is not called until the</div><div class="line">        decorated function is called.</div><div class="line">        """</div><div class="line">        print(<span class="string">"Inside __call__()"</span>)</div><div class="line">        self.f(*args)</div><div class="line">        print(<span class="string">"After self.f(*args)"</span>)</div><div class="line"></div><div class="line"><span class="meta">@decorator_without_arguments</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">sayHello</span><span class="params">(a1, a2, a3, a4)</span>:</span></div><div class="line">    print(<span class="string">'sayHello arguments:'</span>, a1, a2, a3, a4)</div><div class="line"></div><div class="line">print(<span class="string">"After decoration"</span>)</div><div class="line"></div><div class="line">print(<span class="string">"----------------Preparing to call sayHello()----------------"</span>)</div><div class="line">sayHello(<span class="string">"say"</span>, <span class="string">"hello"</span>, <span class="string">"argument"</span>, <span class="string">"list"</span>)</div><div class="line">print(<span class="string">"----------------After first sayHello() call----------------"</span>)</div><div class="line">sayHello(<span class="string">"a"</span>, <span class="string">"different"</span>, <span class="string">"set of"</span>, <span class="string">"arguments"</span>)</div><div class="line">print(<span class="string">"----------------After second sayHello() call----------------"</span>)</div></pre></td></tr></table></figure>
+<pre><code>Inside __init__()
+After decoration
+----------------Preparing to call sayHello()----------------
+Inside __call__()
+(&apos;sayHello arguments:&apos;, &apos;say&apos;, &apos;hello&apos;, &apos;argument&apos;, &apos;list&apos;)
+After self.f(*args)
+----------------After first sayHello() call----------------
+Inside __call__()
+(&apos;sayHello arguments:&apos;, &apos;a&apos;, &apos;different&apos;, &apos;set of&apos;, &apos;arguments&apos;)
+After self.f(*args)
+----------------After second sayHello() call----------------
+</code></pre><p>当 Python 解释器读取到 <code>@decorator_without_arguments</code> 时，由于 <code>decorator_without_arguments</code> 是装饰器，初始化需要被装饰的 <code>f</code> 做参数，因此继续读取 <code>def sayHello</code>， 拿到参数后， 就执行 <code>sayHello = decorator_without_arguments(sayHello)</code>, 是个 <code>callable</code> 对象。以后 <code>sayHello()</code> 的调用就是 <code>sayHello.__call__()</code>.</p>
+<h3 id="带参数的-class-decorator"><a href="#带参数的-class-decorator" class="headerlink" title="带参数的 class decorator"></a>带参数的 class decorator</h3><p><strong>如果 class decorator 本身还需要 参数 做初始化, 那么就和 带参数的function decorator 一样, 初始化的时候, 不能加 <code>f</code> 做参数了, 然后碰到 <code>f</code> 时候会再次被调用一次, 返回一个 callable 对象或者说一个函数. 此时, __call__ 就必须加 <code>f</code> 作为参数, 导致 __call__ 内部必须再写一个函数, 返回.</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">decorator_with_arguments</span><span class="params">(object)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, arg1, arg2, arg3)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        If there are decorator arguments, the function</div><div class="line">        to be decorated is not passed to the constructor!</div><div class="line">        """</div><div class="line">        print(<span class="string">"Inside __init__()"</span>)</div><div class="line">        self.arg1 = arg1</div><div class="line">        self.arg2 = arg2</div><div class="line">        self.arg3 = arg3</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self, f)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        If there are decorator arguments, __call__() is only called</div><div class="line">        once, as part of the decoration process! You can only give</div><div class="line">        it a single argument, which is the function object.</div><div class="line">        """</div><div class="line">        print(<span class="string">"Inside __call__()"</span>)</div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapped_f</span><span class="params">(*args)</span>:</span></div><div class="line">            print(<span class="string">"Inside wrapped_f()"</span>)</div><div class="line">            print(<span class="string">"Decorator arguments:"</span>, self.arg1, self.arg2, self.arg3)</div><div class="line">            f(*args)</div><div class="line">            print(<span class="string">"After f(*args)"</span>)</div><div class="line">        <span class="keyword">return</span> wrapped_f</div><div class="line"></div><div class="line"><span class="meta">@decorator_with_arguments("hello", "world", 22)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">sayHello</span><span class="params">(a1, a2, a3, a4)</span>:</span></div><div class="line">    print(<span class="string">'sayHello arguments:'</span>, a1, a2, a3, a4)</div><div class="line"></div><div class="line">print(<span class="string">"After decoration"</span>)</div><div class="line"></div><div class="line">print(<span class="string">"----------------Preparing to call sayHello()----------------"</span>)</div><div class="line">sayHello(<span class="string">"say"</span>, <span class="string">"hello"</span>, <span class="string">"argument"</span>, <span class="string">"list"</span>)</div><div class="line">print(<span class="string">"----------------After first sayHello() call----------------"</span>)</div><div class="line">sayHello(<span class="string">"a"</span>, <span class="string">"different"</span>, <span class="string">"set of"</span>, <span class="string">"arguments"</span>)</div><div class="line">print(<span class="string">"----------------After second sayHello() call----------------"</span>)</div></pre></td></tr></table></figure>
+<pre><code>Inside __init__()
+Inside __call__()
+After decoration
+----------------Preparing to call sayHello()----------------
+Inside wrapped_f()
+(&apos;Decorator arguments:&apos;, &apos;hello&apos;, &apos;world&apos;, 22)
+(&apos;sayHello arguments:&apos;, &apos;say&apos;, &apos;hello&apos;, &apos;argument&apos;, &apos;list&apos;)
+After f(*args)
+----------------After first sayHello() call----------------
+Inside wrapped_f()
+(&apos;Decorator arguments:&apos;, &apos;hello&apos;, &apos;world&apos;, 22)
+(&apos;sayHello arguments:&apos;, &apos;a&apos;, &apos;different&apos;, &apos;set of&apos;, &apos;arguments&apos;)
+After f(*args)
+----------------After second sayHello() call----------------
+</code></pre><p>当 Python 解释器读取到 <code>@decorator_with_arguments(&quot;hello&quot;, &quot;world&quot;, 22)</code> 时完成初始化，带参数的 decorator 首先使用其参数初始化，<code>dwa = decorator_with_arguments(&quot;hello&quot;, &quot;world&quot;, 22)</code>。由于 decorator_with_arguments 是装饰器，需要被装饰的 f 做参数，因此继续读取 <code>def sayHello</code>， 拿到参数后， 就执行 <code>sayHello = dwa(sayHello)</code>, 返回的是 <code>wrapped_f</code>。<strong>class decorator的 解释模型 就是 <code>f = dcwa(args)(f) =&gt; f()</code>.</strong></p>
+<h1 id="深入理解decorator"><a href="#深入理解decorator" class="headerlink" title="深入理解decorator"></a>深入理解decorator</h1><p><strong>decorator 本身很容易修改原来函数的名字等属性, 因此我们需要保持原来的属性! 将我们返回的 callable 对象的 __name__ __doc__ 和 __module__ 修改为被装饰的对象的即可!</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">entry_exit</span><span class="params">(object)</span>:</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, f)</span>:</span></div><div class="line">        self.f = f</div><div class="line">        self.__name__ = f.__name__</div><div class="line">        self.__doc__ = f.__doc__</div><div class="line">        self.__module__ = f.__module__</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__call__</span><span class="params">(self)</span>:</span></div><div class="line">        print(<span class="string">"Entering"</span>, self.f.__name__)</div><div class="line">        self.f()</div><div class="line">        print(<span class="string">"Exited"</span>, self.f.__name__)</div><div class="line"></div><div class="line"><span class="meta">@entry_exit</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func1</span><span class="params">()</span>:</span></div><div class="line">    <span class="string">"""函数func1"""</span></div><div class="line">    print(<span class="string">"call func1()"</span>)</div><div class="line"></div><div class="line"><span class="meta">@entry_exit</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func2</span><span class="params">()</span>:</span></div><div class="line">    <span class="string">"""函数func2"""</span></div><div class="line">    print(<span class="string">"call func2()"</span>)</div><div class="line"></div><div class="line">func1()</div><div class="line">func2()</div><div class="line"><span class="keyword">print</span> func1.__name__</div><div class="line"><span class="keyword">print</span> func1.__doc__</div><div class="line"><span class="keyword">print</span> func1.__module__</div><div class="line"><span class="keyword">print</span> func1.f.__name__</div><div class="line"><span class="keyword">print</span> func1.f.__doc__</div><div class="line"><span class="keyword">print</span> func1.f.__module__</div></pre></td></tr></table></figure>
+<pre><code>(&apos;Entering&apos;, &apos;func1&apos;)
+call func1()
+(&apos;Exited&apos;, &apos;func1&apos;)
+(&apos;Entering&apos;, &apos;func2&apos;)
+call func2()
+(&apos;Exited&apos;, &apos;func2&apos;)
+func1
+函数func1
+__main__
+func1
+函数func1
+__main__
+</code></pre><p>其实 functools 包里面提供来了一个 wraps 装饰器, 可以完成函数属性不变的功能!</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">entry_exit</span><span class="params">(f)</span>:</span></div><div class="line"><span class="meta">    @wraps(f)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">new_f</span><span class="params">()</span>:</span></div><div class="line">        print(<span class="string">"Entring"</span>, f.__name__)</div><div class="line">        f()</div><div class="line">        print(<span class="string">"Exited"</span>, f.__name__)</div><div class="line">    <span class="keyword">return</span> new_f</div><div class="line"></div><div class="line"><span class="meta">@entry_exit</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">func1</span><span class="params">()</span>:</span></div><div class="line">    <span class="string">"""函数func1"""</span></div><div class="line">    print(<span class="string">"call func1()"</span>)</div><div class="line"></div><div class="line">func1()</div><div class="line">print(func1.__name__)</div><div class="line">print(func1.__doc__)</div><div class="line">print(func1.__module__)</div></pre></td></tr></table></figure>
+<pre><code>(&apos;Entring&apos;, &apos;func1&apos;)
+call func1()
+(&apos;Exited&apos;, &apos;func1&apos;)
+func1
+函数func1
+__main__
+</code></pre><p>以上装饰器的实现其实也很简单, 给出一个自己实现的简单版本!<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">wraps</span><span class="params">(decoratedFunc)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(decorator)</span>:</span></div><div class="line">        decorator.__name__ = decoratedFunc.__name__</div><div class="line">        decorator.__module__ = decoratedFunc.__module__</div><div class="line">        decorator.__doc__ = decoratedFunc.__doc__</div><div class="line">        <span class="keyword">return</span> decorator</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> wrapper</div></pre></td></tr></table></figure></p>
+<h1 id="复杂decorator"><a href="#复杂decorator" class="headerlink" title="复杂decorator"></a>复杂decorator</h1><p>Python 内置了三个 基本的 decorator, <code>@staticmethod</code>, <code>@classmethod</code>, <code>@property</code>, 还有许多更加复杂的 decorator, 可以装饰类等, 还涉及到 metaprogramming, 下一次准备深入一下现实开源代码中的decorator, 先总结到这里!<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">bar</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line">bar = staticmethod(bar)</div><div class="line"></div><div class="line">等价于</div><div class="line"><span class="meta">@staticmethod</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">bar</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>什么是装饰器，就是装饰函数或者类的函数或类。那么他就必须接受 一个函数或者类当参数， 然后装饰它， 最后返回 装饰好的 函数或类。类比大象放冰箱分三步，decorator三步走：</p>
+<ol>
+<li>把 被装饰者 传递给 装饰者;</li>
+<li>在 装饰者 内部装饰 这个 被装饰者。由于 需要返回一个 被装饰的 对象， 因此 在装饰者 内部 一定至少会 定义一个新的 函数;</li>
+<li>返回 装饰者 新定义的 callable 对象 即经过装饰后的对象;</li>
+</ol>
+<p>装饰器并不仅仅体现了函数式编程， 它体现的更加本质的东西是<strong>一处代码被另一处代码动态修改或者说替换</strong>，这也正是编译型语言做不到的事情，例如C/C++就做不到。一个<strong>语言要想动态的修改自己，绝对需要靠虚拟机或者解释器在运行的时候来帮忙</strong>， 编译器只能在还没有运行的时候修改代码, 动态运行时候是没有办法做的；</p>
+<p>Java具有反射机制，动态产生和构造一个类，实际上就是因为它有一个虚拟机，虚拟机提供了这种接口。所以，<strong>解释型语言都具备很大的灵活性和可操作性。</strong></p>
+<p>当然你也可以从另一个层面来理解装饰器， 就是以 decorator 为代码主体，即把里面的 decorator 看成是 C 语言里的 micro 宏定义， 把 decorated 看成实际的宏替换实例。例如 <code>define micro 777</code> 就是这里的 <code>@decorator decorated</code>, 只不过这里的 <strong>宏 替换换过程是 静态的，装饰器替换是 动态的, 因为 C 语言是 静态 编译类型，Python 是 动态 解释类型语言嘛^_^</strong>;因此本质上就是<strong>少写代码，动态修改</strong> ^_^</p>
+<p>再来看看 decorator 的 @ 写法， 实际上是带领我们进入另一种 程序设计思维， 虽然本质上是 函数式 或者 宏替换。即 把 代码 运用到 代码 中。记住一个观点，软件工程的所有设计方法，有99%其实是因为懒。即为了 少 写 代码。代码写的越少，越易读，易维护，易扩展，易重构。但是少写代码并不意味着你真的少写了代码，实际上你看看开源社区，我们的代码 肯定是 越来越多的。但是 从 历史的 角度来看， 代码是越写越少。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="http://python-3-patterns-idioms-test.readthedocs.io/en/latest/PythonDecorators.html" target="_blank" rel="external">Decorators</a></li>
+<li><a href="http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/#footnote_2" target="_blank" rel="external">Understanding Python Decorators in 12 Easy Steps!</a></li>
+<li><a href="https://pythonconquerstheuniverse.wordpress.com/2012/04/29/python-decorators/" target="_blank" rel="external">Python Decorators</a></li>
+<li><a href="https://realpython.com/blog/python/primer-on-python-decorators/" target="_blank" rel="external">Primer on Python Decorators</a>web flask为例子讲解decorator使用场景</li>
+<li><a href="http://thecodeship.com/patterns/guide-to-python-function-decorators/" target="_blank" rel="external">guide-to-python-function-decorators</a>以html渲染为例子，还讲了functools.wraps的由来</li>
+<li><a href="https://www.python.org/dev/peps/pep-0318/#current-syntax" target="_blank" rel="external">pep-0318</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/qrcode_for_metahacks.jpg" alt="Kinny wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫描二维码，关注我 ^_^</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/functional-programming/" rel="tag"># functional programming</a>
+          
+            <a href="/tags/python/" rel="tag"># python</a>
+          
+            <a href="/tags/decorator/" rel="tag"># decorator</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/11/python-new-init-diff/" rel="next" title="Python __new__ 和 __init__">
+                <i class="fa fa-chevron-left"></i> Python __new__ 和 __init__
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/04/24/python-decorator-1/"
+           data-title="Python Decorator(1)" data-url="http://blog.hacksmeta.com/2017/04/24/python-decorator-1/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="Kinny" />
+          <p class="site-author-name" itemprop="name">Kinny</p>
+          <p class="site-description motion-element" itemprop="description">coding for mind, machine, human</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/kitianFresh" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/3971220798/profile" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/tian-qi-89-36" target="_blank" title="Zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Zhihu
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#函数式"><span class="nav-number">1.</span> <span class="nav-text">函数式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#递归"><span class="nav-number">1.1.</span> <span class="nav-text">递归</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Syntax-Sugar"><span class="nav-number">2.</span> <span class="nav-text">Syntax Sugar</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Decorator"><span class="nav-number">3.</span> <span class="nav-text">Decorator</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Function-Decorator"><span class="nav-number">3.1.</span> <span class="nav-text">Function Decorator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无参数的-function-decorator"><span class="nav-number">3.1.1.</span> <span class="nav-text">无参数的 function decorator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#有参数的-function-decorator"><span class="nav-number">3.1.2.</span> <span class="nav-text">有参数的 function decorator</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Class-Decorator"><span class="nav-number">3.2.</span> <span class="nav-text">Class Decorator</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无参数的-class-decorator"><span class="nav-number">3.2.1.</span> <span class="nav-text">无参数的 class decorator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#带参数的-class-decorator"><span class="nav-number">3.2.2.</span> <span class="nav-text">带参数的 class decorator</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#深入理解decorator"><span class="nav-number">4.</span> <span class="nav-text">深入理解decorator</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#复杂decorator"><span class="nav-number">5.</span> <span class="nav-text">复杂decorator</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kinny</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"metahacks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
