@@ -1,0 +1,1090 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Parallel,Concurrency,JVM,Heap,Stack,Divide and conquer,Fork Join,Start Run,Multi-Thread," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="大家都知道如何串行的计算一个数组的和, 而对于现代多CPU计算机甚至是分布式系统而言, 采用串行方式大大浪费了计算资源, 而且当数据规模达到一定程度的时候, 串行算法往往无法胜任高响应时间的要求. 本文从几个小实验开始, 慢慢探讨 Java 并行程序设计方案. 
+Sum An Array By Multi-Threads实验环境 sudo lshw:1234567891011121314*-cpu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从数组求和谈Java并行程序设计(一)">
+<meta property="og:url" content="http://blog.hacksmeta.com/2017/05/05/java-parallel-concurrency-1/index.html">
+<meta property="og:site_name" content="MetaHacks">
+<meta property="og:description" content="大家都知道如何串行的计算一个数组的和, 而对于现代多CPU计算机甚至是分布式系统而言, 采用串行方式大大浪费了计算资源, 而且当数据规模达到一定程度的时候, 串行算法往往无法胜任高响应时间的要求. 本文从几个小实验开始, 慢慢探讨 Java 并行程序设计方案. 
+Sum An Array By Multi-Threads实验环境 sudo lshw:1234567891011121314*-cpu">
+<meta property="og:updated_time" content="2017-05-06T12:28:30.303Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从数组求和谈Java并行程序设计(一)">
+<meta name="twitter:description" content="大家都知道如何串行的计算一个数组的和, 而对于现代多CPU计算机甚至是分布式系统而言, 采用串行方式大大浪费了计算资源, 而且当数据规模达到一定程度的时候, 串行算法往往无法胜任高响应时间的要求. 本文从几个小实验开始, 慢慢探讨 Java 并行程序设计方案. 
+Sum An Array By Multi-Threads实验环境 sudo lshw:1234567891011121314*-cpu">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"right","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: 'MYQZ4L4RHN',
+      apiKey: '6c44fdb6e1e6fef41689fb14619b8ab2',
+      indexName: 'MetaHacksBlog',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://blog.hacksmeta.com/2017/05/05/java-parallel-concurrency-1/"/>
+
+
+
+
+
+  <title> 从数组求和谈Java并行程序设计(一) | MetaHacks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">MetaHacks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+    
+      <p class="site-subtitle">一生二，二生三，三生万物</p>
+    
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="http://blog.hacksmeta.com/2017/05/05/java-parallel-concurrency-1/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Kinny">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/images/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="MetaHacks">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="MetaHacks" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                从数组求和谈Java并行程序设计(一)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-05T00:00:00+08:00">
+                2017-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/05/05/java-parallel-concurrency-1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/05/05/java-parallel-concurrency-1/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>大家都知道如何串行的计算一个数组的和, 而对于现代多CPU计算机甚至是分布式系统而言, 采用串行方式大大浪费了计算资源, 而且当数据规模达到一定程度的时候, 串行算法往往无法胜任高响应时间的要求. 本文从几个小实验开始, 慢慢探讨 Java 并行程序设计方案. </p>
+<h1 id="Sum-An-Array-By-Multi-Threads"><a href="#Sum-An-Array-By-Multi-Threads" class="headerlink" title="Sum An Array By Multi-Threads"></a>Sum An Array By Multi-Threads</h1><p>实验环境 <code>sudo lshw</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">*-cpus</div><div class="line">        Architecture:          x86_64</div><div class="line">        CPU op-mode(s):        32-bit, 64-bit</div><div class="line">        Byte Order:            Little Endian</div><div class="line">        CPU(s):                4</div><div class="line">        On-line CPU(s) list:   0-3</div><div class="line">        Thread(s) per core:    1</div><div class="line">        Core(s) per socket:    4</div><div class="line"></div><div class="line">*-memory</div><div class="line">        description: System Memory</div><div class="line">        physical id: 7</div><div class="line">        slot: System board or motherboard</div><div class="line">        size: 8GiB</div></pre></td></tr></table></figure></p>
+<p>数组求和实验, 采用串行和多线程的形式进行比较. 实验的测试代码:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">	<span class="keyword">int</span> size = <span class="number">400000</span>;</div><div class="line">	<span class="keyword">int</span>[] a = <span class="keyword">new</span> <span class="keyword">int</span>[size];</div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</div><div class="line">		a[i] = i;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="keyword">int</span> sum = <span class="number">0</span>;</div><div class="line">	<span class="keyword">double</span> t = <span class="number">0</span>;</div><div class="line">	<span class="keyword">long</span> start, end;</div><div class="line">	<span class="keyword">int</span> loops = <span class="number">5</span>;</div><div class="line">	<span class="keyword">int</span> cpus = Runtime.getRuntime().availableProcessors();</div><div class="line">	<span class="keyword">int</span>[] threads = <span class="keyword">new</span> <span class="keyword">int</span>[]&#123;cpus/<span class="number">4</span>, cpus/<span class="number">2</span>, cpus, cpus + <span class="number">2</span>, <span class="number">2</span> * cpus, <span class="number">2</span>*cpus+<span class="number">2</span>, <span class="number">3</span>*cpus, <span class="number">3</span>*cpus + <span class="number">2</span>, <span class="number">4</span>*cpus&#125;;</div><div class="line">	<span class="keyword">double</span>[] ts = <span class="keyword">new</span> <span class="keyword">double</span>[loops];</div><div class="line">	String str0 = String.format(<span class="string">"%20s\t%15d\t%15d\t%15d\t%15d\t%15d\t%15s\n"</span>, <span class="string">"Threads\\Loops"</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="string">"Average(ms)"</span>);</div><div class="line">	System.out.println(str0);</div><div class="line">	<span class="keyword">try</span> &#123;</div><div class="line">		<span class="keyword">for</span> (Integer cores : threads) &#123;</div><div class="line">			t = <span class="number">0</span>;</div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; loops; i++) &#123;</div><div class="line">				start = System.currentTimeMillis();</div><div class="line">				sum = ArraySumer.sum(a, cores);</div><div class="line">				end = System.currentTimeMillis();</div><div class="line">				ts[i] = end - start;</div><div class="line">				t += ts[i];</div><div class="line">				</div><div class="line">			&#125;</div><div class="line">			t = t / loops;</div><div class="line">			String str1 = String.format(<span class="string">"%20s\t%15f\t%15f\t%15f\t%15f\t%15f\t%15f\n"</span>, cores+<span class="string">""</span>, ts[<span class="number">0</span>], ts[<span class="number">1</span>], ts[<span class="number">2</span>], ts[<span class="number">3</span>], ts[<span class="number">4</span>], t);</div><div class="line">			System.out.println(str1);</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">		</div><div class="line">	&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">		<span class="comment">// TODO Auto-generated catch block</span></div><div class="line">		e.printStackTrace();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="one-thread-sequential"><a href="#one-thread-sequential" class="headerlink" title="one thread (sequential)"></a>one thread (sequential)</h2><p>单线程就是一种串行求和, 设置 threadSize = 1即可!</p>
+<h2 id="different-thread-nums-compares-parallel"><a href="#different-thread-nums-compares-parallel" class="headerlink" title="different thread nums compares (parallel)"></a>different thread nums compares (parallel)</h2><p>本实验<strong>对每一种线程个数(Threads)做了五次实验(Loops=5), 然后求出五次的平均性能(Average).</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Threads\Loops</th>
+<th style="text-align:right">1</th>
+<th style="text-align:right">2</th>
+<th style="text-align:right">3</th>
+<th style="text-align:right">4</th>
+<th style="text-align:right">5</th>
+<th style="text-align:right">Average(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">1</td>
+<td style="text-align:right">4.000000</td>
+<td style="text-align:right">5.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">2.000000</td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.200000</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.200000</td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.600000</td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.600000</td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">5.000000</td>
+<td style="text-align:right">1.600000</td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td style="text-align:right">10.000000</td>
+<td style="text-align:right">3.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">3.000000</td>
+</tr>
+<tr>
+<td style="text-align:right">14</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">0.600000</td>
+</tr>
+<tr>
+<td style="text-align:right">16</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">8.000000</td>
+<td style="text-align:right">1.000000</td>
+<td style="text-align:right">0.000000</td>
+<td style="text-align:right">2.200000</td>
+</tr>
+</tbody>
+</table>
+<p>从以上实验结果可以看出, <strong>对于多线程求和, 线程数目并不是越多性能越好, 一般设置为可用处理器个数或者可用处理器个数的2倍性能最佳!</strong></p>
+<h2 id="shared-and-local-memory-in-my-code"><a href="#shared-and-local-memory-in-my-code" class="headerlink" title="shared and local memory in my code"></a>shared and local memory in my code</h2><p>以下是实验中使用的  <code>ArraySumer</code> 类的代码.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArraySumer</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span>[] a;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> low;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> high;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> result = <span class="number">0</span>;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="keyword">this</span>.low; i &lt;= <span class="keyword">this</span>.high; i++) &#123;</div><div class="line">			result += a[i];</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span>[] arr, <span class="keyword">int</span> threadSize)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">		<span class="keyword">int</span> len = arr.length;</div><div class="line">		<span class="keyword">int</span> result = <span class="number">0</span>;</div><div class="line">		ArraySumer[] as = <span class="keyword">new</span> ArraySumer[threadSize];</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threadSize; i++) &#123;</div><div class="line">			as[i] = <span class="keyword">new</span> ArraySumer(arr, i*len/threadSize, (i+<span class="number">1</span>)*len/threadSize-<span class="number">1</span>);</div><div class="line">			as[i].start();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threadSize; i++) &#123;</div><div class="line">			as[i].join();</div><div class="line">			result += as[i].result;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> result;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>从代码中可以看出, 所有线程共享数组变量 <code>a</code>. 主线程和从线程都只对 <code>a</code> 进行读取操作. 主线程通过局部变量的形式将参数 <code>low</code>, <code>high</code> 传递给从线程, 从线程会写入自己的成员变量 <code>result</code>, 而主线程会读取所有从线程的成员变量 <code>result</code>. 因此 race condition 可能会发生在这里, 但是这个数组求和程序, 由于从线程的 <code>as[i].join()</code> 操作, 主线程会等待对应的从线程都做完(写完 result)之后才开始读取, 因此并没有数据竞争, 是线程安全的.</p>
+<h2 id="performance-analysis"><a href="#performance-analysis" class="headerlink" title="performance analysis"></a>performance analysis</h2><p><strong>对于多线程 parallel, 并不是选择越多的线程越好, 因为创建线程本身也是耗费资源(时间和空间资源)的.</strong> 极端的例子, 比如现在有处理器P个,P &gt;&gt; n, 我们对于每一个数,都创建一个线程读取, 然后让主线程合并, 这反而没有串行执行的快. </p>
+<p><strong>因此要想使得多线程 performance 达到最大, 需要选取合适的 threadSize. 从以上的实验可以得出一个经验性的结论就是, 线程数目和当前可得处理器的个数有关系, 一般我们选取cpus或者 2*cpus比较合理.</strong></p>
+<h2 id="a-better-idea-for-parallel-sum-array"><a href="#a-better-idea-for-parallel-sum-array" class="headerlink" title="a better idea for parallel sum array"></a>a better idea for parallel sum array</h2><h3 id="amdahl’s-law"><a href="#amdahl’s-law" class="headerlink" title="amdahl’s law"></a>amdahl’s law</h3><p>假设 $S$ 为系统不可加速部分的比例(这里就是只能串行执行的任务的比例), $n$ 为可加速部分(这里就是并行部分)加速倍数, 那么系统的加速比为<br>$$<br>S_e = \frac{1}{S+\frac{1-S}{n}}<br>$$<br>以上公式其实是根据定义式子 $S_e=\frac{T_{origin}}{T_{new}}$ 推到而来的.</p>
+<p>以上的数组求和程序, 是按照线性的思路拆分任务, 然后得到一个线性的加速比(假设处理器核数是无穷个的话). 即假设原来的串行时间为 $T$. 那么现在将任务均分到 $N$ 个线程上之后, 得到并行时间应该是 $\frac{T}{N}$. 根据加速比的定义 $S_e=\frac{T_{origin}}{T_{new}}$, 这里其实整个任务都是可并行的, 没有串行部分, 得到加速比就是和线程数目程线性关系即 $S_e=\frac{T}{\frac{T}{N}}=N$.</p>
+<p>但是实际往往是处理器个数有限为 $P$ 个, 如果 $N&gt;P$, 线性拆分后的运行时间应该是$\frac{N}{P}\frac{T}{N}=\frac{T}{P}$. 因为第一批线程 $\frac{N}{P}$ 个, 并行的运行在 $P$ 个处理器上, 后来继续, 共有 $\frac{N}{P}$ 批次. 你也可以这样理解, 对于每一个处理器而言, 运行完成一个完整的串行数组求和需要 $T$. 现在 $P$ 个处理器运行完这个数组求和, 均分在每一个处理器上的时间就是$\frac{T}{P}$.</p>
+<h3 id="divide-and-conquer-algorithm-for-paralleling-sum-array"><a href="#divide-and-conquer-algorithm-for-paralleling-sum-array" class="headerlink" title="divide and conquer algorithm for paralleling sum array"></a>divide and conquer algorithm for paralleling sum array</h3><p>采用分治法计算数组和, 分治思想: 主线程将任务分解成两个子任务, 左子线程计算左半边数组和, 右子线程计算右半边数组和, 当左右任务完成之后, 主线程合并左右结果(左右和加起来), 左右线程进行同样的递归分解操作, 分解终止的条件由 <code>SEQUENTIAL_CUTOFF</code> 来控制. 核心代码如下:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.high - <span class="keyword">this</span>.low &lt; SEQUENTIAL_CUTOFF) &#123; <span class="comment">// 只剩 SEQUENTIAL_CUTOFF 个的时候, 就直接串行的解决</span></div><div class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="keyword">this</span>.low; i &lt;= <span class="keyword">this</span>.high; i++) &#123;</div><div class="line">		<span class="keyword">this</span>.result += a[i];</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="keyword">else</span> &#123;<span class="comment">// 还可以继续分解</span></div><div class="line">	<span class="keyword">int</span> mid = (<span class="keyword">this</span>.low + <span class="keyword">this</span>.high) / <span class="number">2</span>;</div><div class="line">	ArraySumerDc left = <span class="keyword">new</span> ArraySumerDc(<span class="keyword">this</span>.a, <span class="keyword">this</span>.low, mid, SEQUENTIAL_CUTOFF);</div><div class="line">	ArraySumerDc right = <span class="keyword">new</span> ArraySumerDc(<span class="keyword">this</span>.a, mid + <span class="number">1</span>, <span class="keyword">this</span>.high, SEQUENTIAL_CUTOFF);</div><div class="line">	left.start();</div><div class="line">	count.incrementAndGet(); <span class="comment">// 记录创建的线程的个数</span></div><div class="line">	right.start();</div><div class="line">	count.incrementAndGet();</div><div class="line"><span class="comment">//			right.run();</span></div><div class="line">	<span class="keyword">try</span> &#123;</div><div class="line">		left.join();</div><div class="line">		right.join();</div><div class="line">	&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">		<span class="comment">// TODO Auto-generated catch block</span></div><div class="line">		e.printStackTrace();</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">this</span>.result = left.result + right.result;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// 测试代码</span></div><div class="line"><span class="comment">// size = 400000, 树的高度为 log400000 = 18, 线程个数即这棵平衡二叉树的节点数目, 2^19 = 524288... `Exception in thread "Thread-5839" java.lang.OutOfMemoryError: unable to create new native thread`</span></div><div class="line"><span class="comment">// 显然, 这么创建线程来解决这个求和问题是为了并行而并行.JVM的线程个数是有限制的. 即使调整为 40000, log40000 = 15, 2^16 = 65536都是线程数目比数组规模还大.</span></div><div class="line"><span class="comment">// size = 4000, log4000 = 12. 2^13 = 8096 个线程, 这个时候 JVM 没有发生 outofmemory error.</span></div><div class="line"><span class="comment">// 很简单, 因为sequential_cutoff的条件是每一个线程处理一个数, 即每个叶子处理一个数, 而中间的非叶子节点都在等待左右孩子做完后在相加.</span></div><div class="line"><span class="comment">//		System.out.println(5^2);// 注意这个是 异或....</span></div><div class="line"><span class="keyword">int</span> size = <span class="number">1</span>&lt;&lt;<span class="number">29</span>; <span class="comment">// 线程个数超过 1&lt;&lt;16 开始outofmemory</span></div><div class="line"><span class="keyword">int</span> cutoff = <span class="number">1</span>&lt;&lt;<span class="number">25</span>; <span class="comment">// h = log(size/cutoff) 为树高. 线程个数 2^(h+1) - 1</span></div><div class="line"><span class="keyword">int</span> h = (<span class="keyword">int</span>) (Math.log(size/cutoff)/Math.log(<span class="number">2</span>));</div><div class="line">System.out.println(<span class="string">"Predict Threads: "</span> + (Math.pow(<span class="number">2</span>, h+<span class="number">1</span>) - <span class="number">1</span>));</div><div class="line"><span class="keyword">int</span>[] a = <span class="keyword">new</span> <span class="keyword">int</span>[size];</div><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</div><div class="line">	a[i] = i;</div><div class="line">&#125;</div><div class="line"><span class="keyword">int</span> sum = <span class="number">0</span>;</div><div class="line"><span class="keyword">long</span> start, end;</div><div class="line"></div><div class="line">start = System.currentTimeMillis();</div><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</div><div class="line">	sum += a[i];</div><div class="line">&#125;</div><div class="line">end = System.currentTimeMillis();</div><div class="line">System.out.println(<span class="string">"Sum: "</span> + sum);</div><div class="line">System.out.println(end - start + <span class="string">"ms"</span>);</div><div class="line"></div><div class="line">sum = <span class="number">0</span>;</div><div class="line">start = System.currentTimeMillis();</div><div class="line">sum = ArraySumerDc.sum(a, cutoff);</div><div class="line">end = System.currentTimeMillis();</div><div class="line">System.out.println(<span class="string">"Sum: "</span> + sum);</div><div class="line">System.out.println(end-start + <span class="string">"ms"</span>);</div><div class="line">System.out.println(<span class="string">"Real Threads: "</span> + ArraySumerDc.count);</div></pre></td></tr></table></figure></p>
+<p>经过测试后发现,效果并不是很好, 可能原因是和数组规模以及处理器个数有关系, 申请了 1&lt;<29 个int="" 数组,共占内存2g,="" 效果只是和="" 线性分解相当,="" <font="" color="red">原因应该是处理器个数太少的缘故, 因为<strong>分治法创建的线程数目和树的高度有关系, 如果处理器个数是无限的话, 显然分治法更胜一筹, 因为他的时间是 O(lgn), 而线性分解是 O(n/N), 当 n 非常大的时候, N 虽然也可以很大,但是从数量级来看, 显然对数时间更少.</strong></29></p>
+<h1 id="A-parallel-DC-Algorithm-for-computing-the-max-number-of-an-array"><a href="#A-parallel-DC-Algorithm-for-computing-the-max-number-of-an-array" class="headerlink" title="A parallel DC Algorithm for computing the max number of an array"></a>A parallel DC Algorithm for computing the max number of an array</h1><p>采用分治法计算数组的最大(最小)数, 分治思想: 主线程将任务分解成两个子任务, 左子线程寻找左半边数组的最大值, 右子线程寻找右半边数组的最大值, 当左右任务完成之后, 主线程合并左右结果(比较左右结果的较大者返回), 左右线程进行同样的递归分解操作, 分解终止的条件由 <code>SEQUENTIAL_CUTOFF</code> 来控制.</p>
+<h2 id="start-run-method"><a href="#start-run-method" class="headerlink" title="start/run method"></a>start/run method</h2><p>根据分治思想, 代码如下:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxNumber</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">	<span class="keyword">int</span> low;</div><div class="line">	<span class="keyword">int</span> high;</div><div class="line">	<span class="keyword">int</span> max = <span class="number">0</span>;</div><div class="line">	<span class="keyword">int</span>[] numbers;</div><div class="line">	<span class="keyword">int</span> SEQUENTIAL_CUTOFF;</div><div class="line">	MaxNumber(<span class="keyword">int</span>[] numbers, <span class="keyword">int</span> low, <span class="keyword">int</span> high, <span class="keyword">int</span> cutoff) &#123;</div><div class="line">		<span class="keyword">this</span>.numbers = numbers;</div><div class="line">		<span class="keyword">this</span>.low = low;</div><div class="line">		<span class="keyword">this</span>.high = high;</div><div class="line">		<span class="keyword">this</span>.SEQUENTIAL_CUTOFF = cutoff;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (high - low &lt; SEQUENTIAL_CUTOFF) &#123;</div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = low; i &lt;= high; i++) &#123;</div><div class="line">				max = Math.max(max, numbers[i]);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">else</span> &#123;</div><div class="line">			<span class="keyword">int</span> mid = (low + high) / <span class="number">2</span>;</div><div class="line">			MaxNumber left = <span class="keyword">new</span> MaxNumber(numbers, low, mid, SEQUENTIAL_CUTOFF);</div><div class="line">			MaxNumber right = <span class="keyword">new</span> MaxNumber(numbers, mid+<span class="number">1</span>, high, SEQUENTIAL_CUTOFF);</div><div class="line">			left.start();</div><div class="line">			right.start();</div><div class="line">			</div><div class="line">			<span class="keyword">try</span> &#123;</div><div class="line">				left.join();</div><div class="line">				right.join();</div><div class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">				<span class="comment">// TODO Auto-generated catch block</span></div><div class="line">				e.printStackTrace();</div><div class="line">			&#125;</div><div class="line">			max = Math.max(left.max, right.max);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">max</span><span class="params">(<span class="keyword">int</span>[] numbers, <span class="keyword">int</span> cutoff)</span> </span>&#123;</div><div class="line">		MaxNumber mn = <span class="keyword">new</span> MaxNumber(numbers, <span class="number">0</span>, numbers.length-<span class="number">1</span>,cutoff);</div><div class="line">		mn.run();</div><div class="line">		<span class="keyword">return</span> mn.max;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>采用覆盖 <code>run()</code> 方法的缺陷就是无法返回一个值, 只能通过成员变量的形式存储.</strong>另外, <strong>由于每一次递归创建子任务的时候, 主线程没有做任何计算任务,</strong> 必须要等待左右都完成之后,才开始计算, 这是一种资源的浪费, 因此<strong>一种形式的优化是,让主线程来做右子树的任务!</strong> <font color="red">这样线程数目可以减少一半!</font><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> mid = (low + high) / <span class="number">2</span>;</div><div class="line">MaxNumber left = <span class="keyword">new</span> MaxNumber(numbers, low, mid, SEQUENTIAL_CUTOFF);</div><div class="line">MaxNumber right = <span class="keyword">new</span> MaxNumber(numbers, mid+<span class="number">1</span>, high, SEQUENTIAL_CUTOFF);</div><div class="line">left.start();</div><div class="line"><span class="comment">//right.start();</span></div><div class="line">right.run();</div><div class="line"></div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">	left.join();</div><div class="line">	<span class="comment">//right.join();</span></div><div class="line">&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">	<span class="comment">// TODO Auto-generated catch block</span></div><div class="line">	e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="Fork-Join-framework"><a href="#Fork-Join-framework" class="headerlink" title="Fork/Join framework"></a>Fork/Join framework</h2><p>以下是改用fork/join framework 的代码:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MaxNumberForkJoin</span> <span class="keyword">extends</span> <span class="title">RecursiveTask</span> </span>&#123;</div><div class="line">	<span class="keyword">int</span> low;</div><div class="line">	<span class="keyword">int</span> high;</div><div class="line">	<span class="keyword">int</span>[] numbers;</div><div class="line">	<span class="keyword">int</span> SEQUENTIAL_CUTOFF;</div><div class="line">	</div><div class="line">	MaxNumberForkJoin(<span class="keyword">int</span>[] numbers, <span class="keyword">int</span> low, <span class="keyword">int</span> high, <span class="keyword">int</span> cutoff) &#123;</div><div class="line">		<span class="keyword">this</span>.numbers = numbers;</div><div class="line">		<span class="keyword">this</span>.low = low;</div><div class="line">		<span class="keyword">this</span>.high = high;</div><div class="line">		<span class="keyword">this</span>.SEQUENTIAL_CUTOFF = cutoff;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">protected</span> Integer <span class="title">compute</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">int</span> max = <span class="number">0</span>;</div><div class="line">		<span class="keyword">if</span> (high - low &lt; SEQUENTIAL_CUTOFF) &#123;</div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = low; i &lt;= high; i++) &#123;</div><div class="line">				max = Math.max(max, numbers[i]);</div><div class="line">			&#125;</div><div class="line">			<span class="keyword">return</span> max;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">else</span> &#123;</div><div class="line">			<span class="keyword">int</span> mid = (low + high) / <span class="number">2</span>;</div><div class="line">			MaxNumberForkJoin left = <span class="keyword">new</span> MaxNumberForkJoin(numbers, low, mid, SEQUENTIAL_CUTOFF);</div><div class="line">			MaxNumberForkJoin right = <span class="keyword">new</span> MaxNumberForkJoin(numbers, mid+<span class="number">1</span>, high, SEQUENTIAL_CUTOFF);</div><div class="line">			left.fork();</div><div class="line">			<span class="keyword">int</span> rightMax = right.compute();</div><div class="line">			<span class="keyword">int</span> leftMax = (<span class="keyword">int</span>) left.join();</div><div class="line">			max = Math.max(rightMax, leftMax);</div><div class="line">			<span class="keyword">return</span> max;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="keyword">static</span> <span class="keyword">final</span> ForkJoinPool fjPool = <span class="keyword">new</span> ForkJoinPool();</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">max</span><span class="params">(<span class="keyword">int</span>[] numbers, <span class="keyword">int</span> cutoff)</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> fjPool.invoke(<span class="keyword">new</span> MaxNumberForkJoin(numbers, <span class="number">0</span>, numbers.length-<span class="number">1</span>, cutoff));</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="sequential-checker"><a href="#sequential-checker" class="headerlink" title="sequential checker"></a>sequential checker</h2><p>以下是串行运算的部分代码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">for (int i = 0; i &lt; size; i++) &#123;</div><div class="line">    max = Math.max(max, numbers[i]);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="performance-comparison"><a href="#performance-comparison" class="headerlink" title="performance comparison"></a>performance comparison</h2><p>这里, 我设置的 <code>SEQUENTIAL_CUTOFF</code> 的值是 2048; 还是一样, 对于每一种情况(Serialize Start/Run 和 Fork/Join) 都采用五次测试取平均来比较平均时间性能. 数组规模是 2^25 次方.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Pattern\Loops</th>
+<th style="text-align:right">1</th>
+<th style="text-align:right">2</th>
+<th style="text-align:right">3</th>
+<th style="text-align:right">4</th>
+<th style="text-align:right">5</th>
+<th style="text-align:right">Average(ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">Serialize Baseline</td>
+<td style="text-align:right">29.673285</td>
+<td style="text-align:right">30.963514</td>
+<td style="text-align:right">26.244178</td>
+<td style="text-align:right">26.037493</td>
+<td style="text-align:right">25.921920</td>
+<td style="text-align:right">27.768078</td>
+</tr>
+<tr>
+<td style="text-align:right">Parallelize Start/Run</td>
+<td style="text-align:right">13103.625879</td>
+<td style="text-align:right">9753.860262</td>
+<td style="text-align:right">9774.133012</td>
+<td style="text-align:right">10805.342403</td>
+<td style="text-align:right">9349.867925</td>
+<td style="text-align:right">10557.365896</td>
+</tr>
+<tr>
+<td style="text-align:right">Parallelize Fork/Join</td>
+<td style="text-align:right">34.131773</td>
+<td style="text-align:right">20.526604</td>
+<td style="text-align:right">15.806599</td>
+<td style="text-align:right">10.757907</td>
+<td style="text-align:right">10.060238</td>
+<td style="text-align:right">18.256624</td>
+</tr>
+</tbody>
+</table>
+<p>对于2^26 次方的时候, Start/Run 模式会出现 <font color="red"><code>Exception in thread &quot;Thread-28661&quot; java.lang.OutOfMemoryError: unable to create new native thread</code></font> 这种 <code>OutOfMemory</code> 的错误. 但是 Fork/Join 可以轻松应对! </p>
+<p><strong>猜测 Fork/Join framework 内部实现了线程池, 因此可以保证不会因为创建过多线程而导致 JVM 爆出内存错误. 因为每一个线程都有私有线程栈, 线程创建的越多, 需要的内存就越多, 当内存不够的时候, 就无法再创建线程了! </strong></p>
+<p>这里<strong>要么设置更小的线程栈以争取创建更多线程的可能, 要么扩充JVM内存.</strong> 但是栈大小本身 JVM 也是有限制的, 设置过小, JVM 就无法启动而报错!<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">The stack size specified is too small, Specify at least 228k</div><div class="line">Error: Could not create the Java Virtual Machine.</div><div class="line">Error: A fatal exception has occurred. Program will exit.</div></pre></td></tr></table></figure></p>
+<p><strong>但是当线程数数目达到一定程度的时候, 创建线程的开销反而大于任务本身了, 这是适得其反的! 另外, 线程栈过小的话, 如果有递归, 这里分治法就是递归, 压栈就不可能很深, 就会限制递归的深度, 限制递归的深度就会限制能解决问题的规模数目!</strong></p>
+<p>去掉 Start/Run 方法之后, 我们设置数组规模到JVM堆可以容纳的最大值, <strong>运行的时候你可以设置JVM 的运行参数 <code>-Xmx4096M -Xms2000M -Xmn500M</code>, 因为JVM默认最大堆内存是机器物理内存的 1/4, 而我机器内存8G, 也就是最大是2G, 但是JVM最大堆内存的限制实际上取决于操作系统和物理内存空间, 我的机器最大堆内存可以设置到8G. </strong></p>
+<pre><code>        Pattern\Loops                  1                  2                  3                  4                  5        Average(ms)
+   Serialize Baseline         188.076303         206.252412         208.105703         203.449220         203.056148         201.787957
+Parallelize Fork/Join         145.812311          85.910176          85.791367          90.719006          81.187196          97.884011
+</code></pre><p>但是<strong>你最好不要设置成最大内存 8G, 除非你的服务器只运行一个 JAVA 程序, 如果你设置成最大物理内存8 G, 然后申请 1&lt;&lt;30 个int整形数组,也即是占用 4G 内存, 然后运行程序,机器会非常卡, 因为处理器和内存资源全部都给 JAVA 程序了, 其他进程就无法很愉快的运行和响应了! 如果设置的 <code>SEQUENTIAL_CUTOFF</code> 和数组规模以及处理器个数不太符合的话,由于线程数目过多, Fork/Join 的性能就比不上 Serialize 了.</strong> <code>SEQUENTIAL_CUTOFF = 1&lt;&lt;11</code>, 将得到一下结果;</p>
+<pre><code>        Pattern\Loops                  1                  2                  3                  4                  5        Average(ms)
+   Serialize Baseline         952.887980        1345.387388         777.596211         773.802849         774.879831         924.910852
+Parallelize Fork/Join        3157.547799        1058.703371        2999.615653         274.054247         245.031633        1546.990541
+</code></pre><p>因此, 我再次提升 <code>SEQUENTIAL_CUTOFF = 1&lt;&lt;15</code>, 此时 Fork/Join 的性能将会更好.</p>
+<pre><code>        Pattern\Loops                  1                  2                  3                  4                  5        Average(ms)
+   Serialize Baseline         781.488606         794.344170         761.915751         750.881256         746.211944         766.968345
+Parallelize Fork/Join         398.081041         257.000682         215.312012         228.940126         233.489181         266.564608
+</code></pre><h1 id="PrimeNumber-By-Concurrency-And-Parallel"><a href="#PrimeNumber-By-Concurrency-And-Parallel" class="headerlink" title="PrimeNumber By Concurrency And Parallel"></a>PrimeNumber By Concurrency And Parallel</h1><p>找出10亿个数中所有的质数, 由于所有质数寻找之间没有依赖关系, 因此我们很容易想到将这10亿个数均分成N段, 每一段使用一个线程并行计算. 但是这里有一点和数组求和不同, 就是<strong>负载均衡(Load Balancing)问题.</strong> </p>
+<p>在数组求和中, 均匀划分后, 每一段计算时间其实相当的, 但是在<strong>计算质数中不是的, 数越大, 判断这个数是否是质数的时间就越长, 因此均匀划分之后, 其实算完所有的就不是一个真实的线性加速了</strong>. <strong>分配到后面大数部分的线程会运行更久的时间,这个时候其他线程都已经运算完毕,但是这个线程可能还在运行, 这样就无法再充分利用剩余已经闲置的CPU了,从而时间还是取决于最慢的那个.</strong></p>
+<p>那么, 还有没有其他的方案呢? 这个任务是否可以做成 concurrency 的? 可以设计出另外一种方案, 就是<strong>多个线程从一个数据池子里面取出数据来判断质数, 取走一个, 池子的数就减少一个, 这样通过共享资源互斥枷锁的方案进行并发求解</strong>, 是否可以比 parallel 的方案更快呢? 其实是有可能的, 因为你<strong>从 CPU 的角度来讲, CPU 在整个任务求解过程中就会马不停蹄(这正是我们想要的), 不会出现CPU空闲的可能, 这样充分利用了多核处理器资源.</strong></p>
+<p>那么到底哪种方案更好呢? 我们做实验看看吧.</p>
+<h2 id="Parallel"><a href="#Parallel" class="headerlink" title="Parallel"></a>Parallel</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PrimeNumberParallel</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">	<span class="keyword">int</span> low;</div><div class="line">	<span class="keyword">int</span> high;</div><div class="line">	List&lt;Long&gt; primes; <span class="comment">// 使用 vector 线程安全的</span></div><div class="line">	</div><div class="line">	PrimeNumberParallel(List&lt;Long&gt; primes, <span class="keyword">int</span> low, <span class="keyword">int</span> high) &#123;</div><div class="line">		<span class="keyword">this</span>.primes = primes;</div><div class="line">		<span class="keyword">this</span>.low = low;</div><div class="line">		<span class="keyword">this</span>.high = high;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = low; i &lt;= high; i++) &#123;</div><div class="line">			<span class="keyword">if</span> (isPrime(i)) &#123;</div><div class="line">				primes.add(i);</div><div class="line"><span class="comment">//				System.out.println(i);</span></div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isPrime</span><span class="params">(<span class="keyword">long</span> number)</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (number &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">2</span>; i &lt;= (<span class="keyword">long</span>)Math.sqrt(number); i++) &#123;</div><div class="line">			<span class="keyword">if</span> (number % i == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Long&gt; <span class="title">primeNumbers</span><span class="params">(<span class="keyword">int</span> threads, <span class="keyword">int</span> size)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">		List&lt;Long&gt; primes = <span class="keyword">new</span> Vector&lt;Long&gt;();</div><div class="line">		PrimeNumberParallel[] pns = <span class="keyword">new</span> PrimeNumberParallel[threads];</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threads; i ++) &#123;</div><div class="line">			pns[i] = <span class="keyword">new</span> PrimeNumberParallel(primes, i*size/threads, (i+<span class="number">1</span>)*size/threads);</div><div class="line">			pns[i].start();</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threads; i ++) &#123;</div><div class="line">			pns[i].join();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> primes;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Concurrency"><a href="#Concurrency" class="headerlink" title="Concurrency"></a>Concurrency</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// concurrency for prime</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PrimeNumberConcurrency</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</div><div class="line">	</div><div class="line">	Counter counter;</div><div class="line">	<span class="keyword">long</span> SIZE = <span class="number">1000</span>;</div><div class="line">	List&lt;Long&gt; primes; <span class="comment">// 使用 vector 线程安全的</span></div><div class="line">	</div><div class="line">	PrimeNumberConcurrency(List&lt;Long&gt; primes, Counter counter, <span class="keyword">int</span> size) &#123;</div><div class="line">		<span class="keyword">this</span>.counter = counter;</div><div class="line">		<span class="keyword">this</span>.primes = primes;</div><div class="line">		<span class="keyword">this</span>.SIZE = size;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">long</span> number;</div><div class="line">		<span class="keyword">while</span> ((number = counter.getAndIncrement()) &lt;= SIZE) &#123;</div><div class="line">			<span class="keyword">if</span> (isPrime(number)) &#123;</div><div class="line">				primes.add(number);</div><div class="line"><span class="comment">//				System.out.println(number);</span></div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isPrime</span><span class="params">(<span class="keyword">long</span> number)</span> </span>&#123;</div><div class="line">		<span class="keyword">if</span> (number &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">2</span>; i &lt;= (<span class="keyword">long</span>)Math.sqrt(number); i++) &#123;</div><div class="line">			<span class="keyword">if</span> (number % i == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Long&gt; <span class="title">primeNumbers</span><span class="params">(Counter counter, <span class="keyword">int</span> threads, <span class="keyword">int</span> size)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">		List&lt;Long&gt; primes = <span class="keyword">new</span> Vector&lt;Long&gt;();</div><div class="line">		PrimeNumberConcurrency[] pns = <span class="keyword">new</span> PrimeNumberConcurrency[threads];</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threads; i ++) &#123;</div><div class="line">			pns[i] = <span class="keyword">new</span> PrimeNumberConcurrency(primes, counter, size);</div><div class="line">			pns[i].start();</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; threads; i ++) &#123;</div><div class="line">			pns[i].join();</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> primes;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="PrimeNumber-concurrency-and-parallel-performance-comparison"><a href="#PrimeNumber-concurrency-and-parallel-performance-comparison" class="headerlink" title="PrimeNumber concurrency and parallel performance comparison"></a>PrimeNumber concurrency and parallel performance comparison</h2><h1 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h1><ol>
+<li>对于多线程 parallel, <font color="red">并不是选择越多的线程越好, 因为创建线程本身也是耗费资源(时间和空间资源)的.通过设置合适剪枝策略 <code>SEQUENTIAL_CUFOFF</code> 和 与处理器相符的线程数目, 来取得更好的 performance.</font></li>
+<li>当线程数数目达到一定程度的时候, 创建线程的开销反而大于任务本身了, 这是适得其反的! 另外, <font color="red">线程栈过小的话, 如果有递归, 这里分治法就是递归, 压栈就不可能很深, 就会限制递归的深度, 限制递归的深度就会限制能解决问题的规模数目!Java并发程序选择合适的JVM参数非常重要.</font></li>
+<li><font color="red">Fork/Join framework 内部实现了线程池, 因此可以保证不会因为创建过多线程而导致 JVM 爆出内存错误.</font> Fork/Join framework 的性能比单纯的 start/run 高很多.内部采用了<strong>工作窃取算法，可以完成更多任务的工作线程可以从其它线程中窃取任务来执行.</strong></li>
+<li>Parallel 还是 Concurrency 需要我们<font color="red">考虑线性分解的 Load Balancing.</font></li>
+</ol>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><ul>
+<li><a href="http://xstarcd.github.io/wiki/Java/JVM_Heap_Non-heap.html" target="_blank" rel="external">JVM堆内存和非堆内存</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/images/qrcode_for_metahacks.jpg" alt="Kinny wechat" style="width: 200px; max-width: 100%;"/>
+    <div>扫描二维码，关注我 ^_^</div>
+</div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Parallel/" rel="tag"># Parallel</a>
+          
+            <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+            <a href="/tags/Heap/" rel="tag"># Heap</a>
+          
+            <a href="/tags/Stack/" rel="tag"># Stack</a>
+          
+            <a href="/tags/Divide-and-conquer/" rel="tag"># Divide and conquer</a>
+          
+            <a href="/tags/Fork-Join/" rel="tag"># Fork Join</a>
+          
+            <a href="/tags/Start-Run/" rel="tag"># Start Run</a>
+          
+            <a href="/tags/Multi-Thread/" rel="tag"># Multi-Thread</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/24/python-decorator-1/" rel="next" title="Python Decorator(1)">
+                <i class="fa fa-chevron-left"></i> Python Decorator(1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+          
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/05/05/java-parallel-concurrency-1/"
+           data-title="从数组求和谈Java并行程序设计(一)" data-url="http://blog.hacksmeta.com/2017/05/05/java-parallel-concurrency-1/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="Kinny" />
+          <p class="site-author-name" itemprop="name">Kinny</p>
+          <p class="site-description motion-element" itemprop="description">coding for mind, machine, human</p>
+        </div>
+        <nav class="site-state motion-element">
+        
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/kitianFresh" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/3971220798/profile" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://www.zhihu.com/people/tian-qi-89-36" target="_blank" title="Zhihu">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Zhihu
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://wiki.hacksmeta.com/" target="_blank" title="Wiki">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  Wiki
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Sum-An-Array-By-Multi-Threads"><span class="nav-number">1.</span> <span class="nav-text">Sum An Array By Multi-Threads</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#one-thread-sequential"><span class="nav-number">1.1.</span> <span class="nav-text">one thread (sequential)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#different-thread-nums-compares-parallel"><span class="nav-number">1.2.</span> <span class="nav-text">different thread nums compares (parallel)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shared-and-local-memory-in-my-code"><span class="nav-number">1.3.</span> <span class="nav-text">shared and local memory in my code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#performance-analysis"><span class="nav-number">1.4.</span> <span class="nav-text">performance analysis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#a-better-idea-for-parallel-sum-array"><span class="nav-number">1.5.</span> <span class="nav-text">a better idea for parallel sum array</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#amdahl’s-law"><span class="nav-number">1.5.1.</span> <span class="nav-text">amdahl’s law</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#divide-and-conquer-algorithm-for-paralleling-sum-array"><span class="nav-number">1.5.2.</span> <span class="nav-text">divide and conquer algorithm for paralleling sum array</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#A-parallel-DC-Algorithm-for-computing-the-max-number-of-an-array"><span class="nav-number">2.</span> <span class="nav-text">A parallel DC Algorithm for computing the max number of an array</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#start-run-method"><span class="nav-number">2.1.</span> <span class="nav-text">start/run method</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fork-Join-framework"><span class="nav-number">2.2.</span> <span class="nav-text">Fork/Join framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sequential-checker"><span class="nav-number">2.3.</span> <span class="nav-text">sequential checker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#performance-comparison"><span class="nav-number">2.4.</span> <span class="nav-text">performance comparison</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#PrimeNumber-By-Concurrency-And-Parallel"><span class="nav-number">3.</span> <span class="nav-text">PrimeNumber By Concurrency And Parallel</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Parallel"><span class="nav-number">3.1.</span> <span class="nav-text">Parallel</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Concurrency"><span class="nav-number">3.2.</span> <span class="nav-text">Concurrency</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PrimeNumber-concurrency-and-parallel-performance-comparison"><span class="nav-number">3.3.</span> <span class="nav-text">PrimeNumber concurrency and parallel performance comparison</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Summary"><span class="nav-number">4.</span> <span class="nav-text">Summary</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kinny</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"metahacks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
