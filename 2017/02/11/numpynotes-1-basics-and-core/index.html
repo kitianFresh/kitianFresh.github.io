@@ -1327,11 +1327,6 @@ array([[[3, 3, 3],
     <div>
       
         
-<div id="wechat_subscriber" style="display: block; padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
-    <img id="wechat_subscriber_qcode" src="/images/qrcode_for_metahacks.jpg" alt="Kinny wechat" style="width: 200px; max-width: 100%;"/>
-    <div>扫描二维码，关注我 ^_^</div>
-</div>
-
 
       
     </div>
@@ -1339,6 +1334,27 @@ array([[[3, 3, 3],
     <div>
       
         
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>如果你觉得这篇文章对你有帮助,不妨请我喝杯咖啡,鼓励我创作更多</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/WeChatPay.jpg" alt="Kinny WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/AliPay.jpeg" alt="Kinny Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
 
       
     </div>
