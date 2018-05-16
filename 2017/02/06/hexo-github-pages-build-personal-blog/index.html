@@ -95,7 +95,7 @@
 <meta property="og:description" content="本人是寻着别人的博客搭建的这个博客，所以大部分网上都有详细介绍，说点重点的东西； 静态个人博客站点现在非常流行，因为很方便，也支持markdown等，不用担心数据库，备份什么的，还有版本管理，就和代码管理一样；本来想着用Python开发一款个人博客，但是觉得主要是为了写博客，而且自己开发出来都是简单的功能，很麻烦，也没有这些强大的开源博客生成器功能丰富，界面也很low，还不如直接用开源的；开源界的">
 <meta property="og:image" content="http://blog.hacksmeta.com/2017/02/06/hexo-github-pages-build-personal-blog/dns-no-speed.png">
 <meta property="og:image" content="http://blog.hacksmeta.com/2017/02/06/hexo-github-pages-build-personal-blog/dns-speed.png">
-<meta property="og:updated_time" content="2017-03-14T03:45:39.415Z">
+<meta property="og:updated_time" content="2018-05-16T15:11:43.859Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hexo + github pages 搭建个人博客">
 <meta name="twitter:description" content="本人是寻着别人的博客搭建的这个博客，所以大部分网上都有详细介绍，说点重点的东西； 静态个人博客站点现在非常流行，因为很方便，也支持markdown等，不用担心数据库，备份什么的，还有版本管理，就和代码管理一样；本来想着用Python开发一款个人博客，但是觉得主要是为了写博客，而且自己开发出来都是简单的功能，很麻烦，也没有这些强大的开源博客生成器功能丰富，界面也很low，还不如直接用开源的；开源界的">
@@ -406,9 +406,50 @@
 
           
           
+             <span id="/2017/02/06/hexo-github-pages-build-personal-blog/" class="leancloud_visitors" data-flag-title="hexo + github pages 搭建个人博客">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
 
           
 
+          
+            <div class="post-wordcount">
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                  
+                    <span class="post-meta-item-text">字数统计</span>
+                  
+                    <span title="字数统计" }}">
+                      4,800
+                    </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                  
+                    <span class="post-meta-item-text">阅读时长</span>
+                  
+                    <span title="阅读时长" }}">
+                      18 分钟
+                    </span>
+              
+            </div>
           
 
           
@@ -460,6 +501,11 @@
 <h3 id="同时上传站点到多个仓库"><a href="#同时上传站点到多个仓库" class="headerlink" title="同时上传站点到多个仓库"></a>同时上传站点到多个仓库</h3><p>另外，如果你的静态站点托管在多个仓库，例如 github 或者 码市，可以修改 _config.yml:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">  type: git</div><div class="line">  repo: https:<span class="comment">//github.com/username/your-blog-url.github.io</span></div><div class="line">  repo: https:<span class="comment">//github.com/username/your-second-blog-url.github.io</span></div></pre></td></tr></table></figure>
 <h3 id="插入图片资源"><a href="#插入图片资源" class="headerlink" title="插入图片资源"></a>插入图片资源</h3><p>如果想要在post中插入图片，一般直接使用markdown的写法会出问题，hexo 提供了专门的写法，你需要将你的图片资源放入 _posts文件夹内的一个名字和你的博客名字相同的文件夹内部；<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 插入图片的语法</span></div><div class="line"></div><div class="line">&#123;% asset_img image1.png image1 %&#125;</div><div class="line"></div><div class="line">&#123;% asset_img image2.png image2 %&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="站点统计"><a href="#站点统计" class="headerlink" title="站点统计"></a>站点统计</h3><h4 id="字数统计和阅读时长"><a href="#字数统计和阅读时长" class="headerlink" title="字数统计和阅读时长"></a>字数统计和阅读时长</h4><p><code>npm install hexo-wordcount@2 --save</code>. 在 <code>themes/next/_config.yml</code> 文件中配置</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">post_wordcount:</div><div class="line">  item_text: <span class="literal">true</span></div><div class="line">  wordcount: <span class="literal">true</span></div><div class="line">  min2read: <span class="literal">true</span></div><div class="line"><span class="string">``</span><span class="string">` </span></div><div class="line"></div><div class="line"></div><div class="line">在 `themes/next/languages/zh-Hans.yml<span class="string">` 文件的 posts 下添加中文翻译</span></div><div class="line"></div><div class="line">`<span class="string">``</span>javascript</div><div class="line">post:</div><div class="line">  sticky: 置顶</div><div class="line">  posted: 发表于</div><div class="line">  modified: 更新于</div><div class="line">  <span class="keyword">in</span>: 分类于</div><div class="line">  visitors: 阅读次数</div><div class="line">  min2read: 阅读时长</div><div class="line">  wordcount: 字数统计</div><div class="line">  read_more: 阅读全文</div><div class="line">  untitled: 未命名</div><div class="line">  toc_empty: 此文章未包含目录</div></pre></td></tr></table></figure>
+<h3 id="访问量-LeanCloud"><a href="#访问量-LeanCloud" class="headerlink" title="访问量 LeanCloud"></a>访问量 LeanCloud</h3><ul>
+<li><a href="https://notes.wanghao.work/2015-10-21-%E4%B8%BANexT%E4%B8%BB%E9%A2%98%E6%B7%BB%E5%8A%A0%E6%96%87%E7%AB%A0%E9%98%85%E8%AF%BB%E9%87%8F%E7%BB%9F%E8%AE%A1%E5%8A%9F%E8%83%BD.html#%E9%85%8D%E7%BD%AELeanCloud" target="_blank" rel="external">为NexT主题添加文章阅读量统计功能</a></li>
+</ul>
 <h1 id="配置DNS和绑定域名"><a href="#配置DNS和绑定域名" class="headerlink" title="配置DNS和绑定域名"></a>配置DNS和绑定域名</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><ul>
 <li>网卡： 上网用的网卡，<strong>每一个网卡都有唯一的一个物理硬件地址Media Access Control (MAC)，而且是全球唯一</strong>。</li>
 <li>主机： 你可以认为是一个电脑，注意<strong>一个主机可以安装多个网卡</strong>。</li>
@@ -578,6 +624,7 @@
 <ul>
 <li><a href="http://www.ezlippi.com/blog/2016/02/jekyll-to-hexo.html" target="_blank" rel="external">Jekyll迁移到Hexo搭建个人博客</a></li>
 <li><a href="http://lovenight.github.io/2015/11/10/Hexo-3-1-1-%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" target="_blank" rel="external">Hexo-3-1-1-静态博客搭建指南</a></li>
+<li><a href="https://segmentfault.com/a/1190000013660164" target="_blank" rel="external">hexo搭建个人博客–NexT主题优化</a></li>
 </ul>
 
       
@@ -838,7 +885,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装和使用hexo"><span class="nav-number">1.</span> <span class="nav-text">安装和使用hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.3.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#同步到github"><span class="nav-number">1.3.1.</span> <span class="nav-text">同步到github</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一次性完成同步-上传"><span class="nav-number">1.3.2.</span> <span class="nav-text">一次性完成同步+上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同时上传站点到多个仓库"><span class="nav-number">1.3.3.</span> <span class="nav-text">同时上传站点到多个仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入图片资源"><span class="nav-number">1.3.4.</span> <span class="nav-text">插入图片资源</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置DNS和绑定域名"><span class="nav-number">2.</span> <span class="nav-text">配置DNS和绑定域名</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关系"><span class="nav-number">2.2.</span> <span class="nav-text">关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#购买域名和绑定设置"><span class="nav-number">2.3.</span> <span class="nav-text">购买域名和绑定设置</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装和使用hexo"><span class="nav-number">1.</span> <span class="nav-text">安装和使用hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.3.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#同步到github"><span class="nav-number">1.3.1.</span> <span class="nav-text">同步到github</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一次性完成同步-上传"><span class="nav-number">1.3.2.</span> <span class="nav-text">一次性完成同步+上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同时上传站点到多个仓库"><span class="nav-number">1.3.3.</span> <span class="nav-text">同时上传站点到多个仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入图片资源"><span class="nav-number">1.3.4.</span> <span class="nav-text">插入图片资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#站点统计"><span class="nav-number">1.3.5.</span> <span class="nav-text">站点统计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#字数统计和阅读时长"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">字数统计和阅读时长</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问量-LeanCloud"><span class="nav-number">1.3.6.</span> <span class="nav-text">访问量 LeanCloud</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置DNS和绑定域名"><span class="nav-number">2.</span> <span class="nav-text">配置DNS和绑定域名</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关系"><span class="nav-number">2.2.</span> <span class="nav-text">关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#购买域名和绑定设置"><span class="nav-number">2.3.</span> <span class="nav-text">购买域名和绑定设置</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -909,6 +956,8 @@
   
 
 
+  
+
 
 
   
@@ -928,6 +977,9 @@
 
   
   <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
 
 
   
@@ -1063,6 +1115,128 @@
   
 
   
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("dRL848MXf5iORUcmzc5cQ6lS-gzGzoHsz", "Afonbl38To0hAOJn3FaOf6dV");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
 
   
 
