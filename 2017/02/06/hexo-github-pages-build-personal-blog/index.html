@@ -95,7 +95,7 @@
 <meta property="og:description" content="本人是寻着别人的博客搭建的这个博客，所以大部分网上都有详细介绍，说点重点的东西； 静态个人博客站点现在非常流行，因为很方便，也支持markdown等，不用担心数据库，备份什么的，还有版本管理，就和代码管理一样；本来想着用Python开发一款个人博客，但是觉得主要是为了写博客，而且自己开发出来都是简单的功能，很麻烦，也没有这些强大的开源博客生成器功能丰富，界面也很low，还不如直接用开源的；开源界的">
 <meta property="og:image" content="http://blog.hacksmeta.com/2017/02/06/hexo-github-pages-build-personal-blog/dns-no-speed.png">
 <meta property="og:image" content="http://blog.hacksmeta.com/2017/02/06/hexo-github-pages-build-personal-blog/dns-speed.png">
-<meta property="og:updated_time" content="2018-05-17T09:48:35.943Z">
+<meta property="og:updated_time" content="2018-05-18T14:36:46.815Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="hexo + github pages 搭建个人博客">
 <meta name="twitter:description" content="本人是寻着别人的博客搭建的这个博客，所以大部分网上都有详细介绍，说点重点的东西； 静态个人博客站点现在非常流行，因为很方便，也支持markdown等，不用担心数据库，备份什么的，还有版本管理，就和代码管理一样；本来想着用Python开发一款个人博客，但是觉得主要是为了写博客，而且自己开发出来都是简单的功能，很麻烦，也没有这些强大的开源博客生成器功能丰富，界面也很low，还不如直接用开源的；开源界的">
@@ -430,7 +430,7 @@
                     <span class="post-meta-item-text">字数统计</span>
                   
                     <span title="字数统计" }}">
-                      4,825
+                      4,845
                     </span>
               
 
@@ -620,14 +620,15 @@
 <li>第二需要在<a href="https://help.github.com/articles/adding-or-removing-a-custom-domain-for-your-github-pages-site/" target="_blank" rel="external">github网站上操作添加绑定域名</a>；</li>
 <li>最后还需要在站点代码中添加CNAME文件，里面写你绑定的域名即可，可以直接在source目录下添加，然后<code>hexo generate &amp; hexo deploy</code> 即可；</li>
 </ul>
-<p>参考</p>
-<ul>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
 <li><a href="http://www.ezlippi.com/blog/2016/02/jekyll-to-hexo.html" target="_blank" rel="external">Jekyll迁移到Hexo搭建个人博客</a></li>
 <li><a href="http://lovenight.github.io/2015/11/10/Hexo-3-1-1-%E9%9D%99%E6%80%81%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/" target="_blank" rel="external">Hexo-3-1-1-静态博客搭建指南</a></li>
 <li><a href="https://segmentfault.com/a/1190000013660164" target="_blank" rel="external">hexo搭建个人博客–NexT主题优化</a></li>
 <li><a href="http://mashirosorata.vicp.io/HEXO-NEXT%E4%B8%BB%E9%A2%98%E4%B8%AA%E6%80%A7%E5%8C%96%E9%85%8D%E7%BD%AE.html" target="_blank" rel="external">HEXO+NEXT主题个性化配置</a></li>
 <li><a href="https://hjptriplebee.github.io/hexo%E7%9A%84SEO%E6%96%B9%E6%B3%95.html/#more" target="_blank" rel="external">hexo的SEO方法</a></li>
-<li><a href="https://www.zhaokangbing.com/posts/programming/2017-01-01-hexo-customizing-and-SEO/" target="_blank" rel="external">Hexo博客SEO与个性化的一些问题</a></li>
+<li><p><a href="https://www.zhaokangbing.com/posts/programming/2017-01-01-hexo-customizing-and-SEO/" target="_blank" rel="external">Hexo博客SEO与个性化的一些问题</a></p>
+<h1 id="Bug"><a href="#Bug" class="headerlink" title="Bug"></a>Bug</h1><p><code>FATAL Cannot read property &#39;count&#39; of undefined</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1.npm remove hexo-baidu-url-submit</div><div class="line">2.hexo clean</div><div class="line">3.hexo g</div></pre></td></tr></table></figure></li>
 </ul>
 
       
@@ -888,7 +889,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装和使用hexo"><span class="nav-number">1.</span> <span class="nav-text">安装和使用hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.3.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#同步到github"><span class="nav-number">1.3.1.</span> <span class="nav-text">同步到github</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一次性完成同步-上传"><span class="nav-number">1.3.2.</span> <span class="nav-text">一次性完成同步+上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同时上传站点到多个仓库"><span class="nav-number">1.3.3.</span> <span class="nav-text">同时上传站点到多个仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入图片资源"><span class="nav-number">1.3.4.</span> <span class="nav-text">插入图片资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#站点统计"><span class="nav-number">1.3.5.</span> <span class="nav-text">站点统计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#字数统计和阅读时长"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">字数统计和阅读时长</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问量-LeanCloud"><span class="nav-number">1.3.6.</span> <span class="nav-text">访问量 LeanCloud</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置DNS和绑定域名"><span class="nav-number">2.</span> <span class="nav-text">配置DNS和绑定域名</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关系"><span class="nav-number">2.2.</span> <span class="nav-text">关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#购买域名和绑定设置"><span class="nav-number">2.3.</span> <span class="nav-text">购买域名和绑定设置</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#安装和使用hexo"><span class="nav-number">1.</span> <span class="nav-text">安装和使用hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.3.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#同步到github"><span class="nav-number">1.3.1.</span> <span class="nav-text">同步到github</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一次性完成同步-上传"><span class="nav-number">1.3.2.</span> <span class="nav-text">一次性完成同步+上传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同时上传站点到多个仓库"><span class="nav-number">1.3.3.</span> <span class="nav-text">同时上传站点到多个仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插入图片资源"><span class="nav-number">1.3.4.</span> <span class="nav-text">插入图片资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#站点统计"><span class="nav-number">1.3.5.</span> <span class="nav-text">站点统计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#字数统计和阅读时长"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">字数统计和阅读时长</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#访问量-LeanCloud"><span class="nav-number">1.3.6.</span> <span class="nav-text">访问量 LeanCloud</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置DNS和绑定域名"><span class="nav-number">2.</span> <span class="nav-text">配置DNS和绑定域名</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关系"><span class="nav-number">2.2.</span> <span class="nav-text">关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#购买域名和绑定设置"><span class="nav-number">2.3.</span> <span class="nav-text">购买域名和绑定设置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bug"><span class="nav-number">4.</span> <span class="nav-text">Bug</span></a></li></ol></div>
             
 
           </div>
